@@ -96,6 +96,21 @@ test('publishes the local demo as a repo-relative static site', () => {
   assert.ok(demoBundle.includes('./bgm.mp3'));
 });
 
+test('normalizes API-returned storage asset paths before rendering media', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('normalizeApiAssetUrl'));
+  assert.equal(demoBundle.includes('l[g]=f.imageUrl'), false);
+  assert.equal(demoBundle.includes('u[g]=f.layers'), false);
+  assert.equal(demoBundle.includes('url:h.imageUrl'), false);
+  assert.equal(demoBundle.includes('layers:p.layers'), false);
+  assert.equal(demoBundle.includes('outputs:h.outputs??[]'), false);
+});
+
 test('sets the browser page title to Creverse Hub', () => {
   assert.ok(html.includes('<title>Creverse Hub</title>'));
   assert.equal(html.includes('<title>Supermarket Game Hub</title>'), false);
