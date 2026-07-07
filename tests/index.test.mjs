@@ -95,3 +95,8 @@ test('publishes the local demo as a repo-relative static site', () => {
   assert.ok(demoBundle.includes('https://life-fairy-api.7hpym90yj95fy.ap-northeast-2.cs.amazonlightsail.com'));
   assert.ok(demoBundle.includes('./bgm.mp3'));
 });
+
+test('sets the browser page title to Creverse Hub', () => {
+  assert.ok(html.includes('<title>Creverse Hub</title>'));
+  assert.equal(html.includes('<title>Supermarket Game Hub</title>'), false);
+});
