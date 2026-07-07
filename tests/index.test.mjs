@@ -10,16 +10,6 @@ function getCardAnchors() {
   );
 }
 
-function getCards() {
-  return [...html.matchAll(/<a class="([^"]*)" href="[^"]+"[^>]*aria-label="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map(
-    ([, className, label, body]) => ({
-      className,
-      label,
-      status: body.match(/<span class="status">([^<]+)<\/span>/)?.[1],
-    }),
-  );
-}
-
 function getCardTitles() {
   return [...html.matchAll(/<h2 class="title">([^<]+)<\/h2>/g)].map(([, title]) => title);
 }
@@ -44,24 +34,6 @@ test('renders the six playable game cards and removes coming soon content', () =
   ]);
   assert.equal(html.includes('Smoothie Bar'), false);
   assert.equal(html.includes('COMING SOON'), false);
-});
-
-test('marks only the newly added cards as new', () => {
-  const cards = getCards();
-  const newCards = cards.filter((card) => card.className.includes('is-new'));
-
-  assert.deepEqual(
-    newCards.map((card) => card.label),
-    ['Life is a Fairy Tale', 'Two', 'Literary'],
-  );
-  assert.deepEqual(
-    newCards.map((card) => card.status),
-    ['NEW', 'NEW', 'NEW'],
-  );
-  assert.deepEqual(
-    cards.filter((card) => !card.className.includes('is-new')).map((card) => card.status),
-    ['LIVE', 'LIVE', 'LIVE'],
-  );
 });
 
 test('publishes the local demo as a repo-relative static site', () => {

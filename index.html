@@ -68,23 +68,6 @@
     display:flex;align-items:center;gap:6px;color:var(--ink-soft);
   }
   .status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--g1);}
-  .is-new{
-    background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 10%,var(--bg)) 0%,var(--bg) 46%);
-    box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent);
-  }
-  .is-new .idx{color:var(--accent);font-weight:500;}
-  .is-new .status{
-    padding:5px 8px;
-    border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line));
-    border-radius:999px;
-    background:color-mix(in srgb,var(--accent) 14%,#ffffff);
-    color:var(--ink);
-    font-weight:500;
-  }
-  .is-new .status::before{
-    background:var(--accent);
-    box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent);
-  }
 
   /* thumbnail */
   .thumb{
@@ -180,24 +163,24 @@
     </a>
 
     <!-- 04 · Life is a Fairy Tale -->
-    <a class="col c-demo is-new" href="./demo/" target="_blank" rel="noopener" aria-label="Life is a Fairy Tale">
-      <div class="col-top"><span class="idx">04</span><span class="status">NEW</span></div>
+    <a class="col c-demo" href="./demo/" target="_blank" rel="noopener" aria-label="Life is a Fairy Tale">
+      <div class="col-top"><span class="idx">04</span><span class="status">LIVE</span></div>
       <div class="thumb"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20640%20480%22%3E%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22%23edf4ff%22%2F%3E%3Crect%20x%3D%2276%22%20y%3D%2272%22%20width%3D%22488%22%20height%3D%22336%22%20rx%3D%2228%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%234b89dc%22%20stroke-width%3D%2214%22%2F%3E%3Cpath%20d%3D%22M142%20158h214M142%20216h356M142%20274h260%22%20stroke%3D%22%23163a64%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%22454%22%20cy%3D%22165%22%20r%3D%2248%22%20fill%3D%22%23f4a02a%22%2F%3E%3Cpath%20d%3D%22M430%20165l20%2020%2038-48%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%2216%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Ctext%20x%3D%22320%22%20y%3D%22368%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2250%22%20font-weight%3D%22700%22%20fill%3D%22%234b89dc%22%3EDEMO%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Demo preview"></div>
       <h2 class="title">Life is a Fairy Tale</h2>
       <div class="cta">PLAY<span class="bar"></span><span class="arrow">→</span></div>
     </a>
 
     <!-- 05 · Two -->
-    <a class="col c-two is-new" href="https://cereels-dev.github.io/two/" target="_blank" rel="noopener" aria-label="Two">
-      <div class="col-top"><span class="idx">05</span><span class="status">NEW</span></div>
+    <a class="col c-two" href="https://cereels-dev.github.io/two/" target="_blank" rel="noopener" aria-label="Two">
+      <div class="col-top"><span class="idx">05</span><span class="status">LIVE</span></div>
       <div class="thumb"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20640%20480%22%3E%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22%23f5eff9%22%2F%3E%3Crect%20x%3D%2282%22%20y%3D%2280%22%20width%3D%22206%22%20height%3D%22320%22%20rx%3D%2226%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%239a6bb3%22%20stroke-width%3D%2214%22%2F%3E%3Crect%20x%3D%22352%22%20y%3D%2280%22%20width%3D%22206%22%20height%3D%22320%22%20rx%3D%2226%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%239a6bb3%22%20stroke-width%3D%2214%22%2F%3E%3Ccircle%20cx%3D%22185%22%20cy%3D%22190%22%20r%3D%2254%22%20fill%3D%22%2354a87c%22%2F%3E%3Ccircle%20cx%3D%22455%22%20cy%3D%22190%22%20r%3D%2254%22%20fill%3D%22%23e2574c%22%2F%3E%3Cpath%20d%3D%22M148%20292h74M418%20292h74%22%20stroke%3D%22%2316181a%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22%2F%3E%3Ctext%20x%3D%22320%22%20y%3D%22438%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2250%22%20font-weight%3D%22700%22%20fill%3D%22%239a6bb3%22%3ETWO%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Two preview"></div>
       <h2 class="title">Two</h2>
       <div class="cta">PLAY<span class="bar"></span><span class="arrow">→</span></div>
     </a>
 
     <!-- 06 · Literary -->
-    <a class="col c-lit is-new" href="https://cereels-dev.github.io/literary/" target="_blank" rel="noopener" aria-label="Literary">
-      <div class="col-top"><span class="idx">06</span><span class="status">NEW</span></div>
+    <a class="col c-lit" href="https://cereels-dev.github.io/literary/" target="_blank" rel="noopener" aria-label="Literary">
+      <div class="col-top"><span class="idx">06</span><span class="status">LIVE</span></div>
       <div class="thumb"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20640%20480%22%3E%3Crect%20width%3D%22640%22%20height%3D%22480%22%20fill%3D%22%23edf6f4%22%2F%3E%3Cpath%20d%3D%22M128%20102h176c42%200%2076%2034%2076%2076v230H204c-42%200-76-34-76-76V102z%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%234f8f8a%22%20stroke-width%3D%2214%22%2F%3E%3Cpath%20d%3D%22M336%20178c0-42%2034-76%2076-76h100v230c0%2042-34%2076-76%2076H336V178z%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%234f8f8a%22%20stroke-width%3D%2214%22%2F%3E%3Cpath%20d%3D%22M184%20176h126M184%20230h126M184%20284h92M392%20176h72M392%20230h72M392%20284h72%22%20stroke%3D%22%2316181a%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22%2F%3E%3Ctext%20x%3D%22320%22%20y%3D%22450%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2244%22%20font-weight%3D%22700%22%20fill%3D%22%234f8f8a%22%3ELITERARY%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Literary preview"></div>
       <h2 class="title">Literary</h2>
       <div class="cta">PLAY<span class="bar"></span><span class="arrow">→</span></div>
