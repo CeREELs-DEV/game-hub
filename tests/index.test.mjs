@@ -20,7 +20,7 @@ test('renders the six playable game cards and removes coming soon content', () =
     'Connections',
     'Coupang',
     'Escape Room',
-    'Demo',
+    'Life is a Fairy Tale',
     'Two',
     'Literary',
   ]);
@@ -28,7 +28,7 @@ test('renders the six playable game cards and removes coming soon content', () =
     { label: 'Connections', href: 'https://cereels-dev.github.io/game-hub/connections/' },
     { label: 'Coupang', href: 'https://cereels-gamedev.github.io/coupang/' },
     { label: 'Escape Room', href: 'https://cereels-gamedev.github.io/escape-room/' },
-    { label: 'Demo', href: './demo/' },
+    { label: 'Life is a Fairy Tale', href: './demo/' },
     { label: 'Two', href: 'https://cereels-dev.github.io/two/' },
     { label: 'Literary', href: 'https://cereels-dev.github.io/literary/' },
   ]);
