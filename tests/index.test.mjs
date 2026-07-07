@@ -90,6 +90,7 @@ test('publishes the local demo as a repo-relative static site', () => {
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
   const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
   assert.ok(scriptMatch);
+  assert.notEqual(scriptMatch[1], './assets/index-CPTZC-Cd.js');
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
   assert.ok(demoBundle.includes('https://life-fairy-api.7hpym90yj95fy.ap-northeast-2.cs.amazonlightsail.com'));
