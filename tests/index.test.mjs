@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
@@ -18,6 +19,10 @@ function getCardImages() {
   return [...html.matchAll(/<a class="col [^"]+" href="[^"]+"[^>]*aria-label="([^"]+)"[^>]*>[\s\S]*?<img src="([^"]+)" alt="([^"]+)"/g)].map(
     ([, label, src, alt]) => ({ label, src, alt }),
   );
+}
+
+function assetSha256(path) {
+  return createHash('sha256').update(readFileSync(new URL(path, import.meta.url))).digest('hex');
 }
 
 test('renders the six playable game cards and removes coming soon content', () => {
@@ -53,13 +58,17 @@ test('renders the six playable game cards and removes coming soon content', () =
     },
     {
       label: 'Life is a Fairy Tale',
-      src: './assets/life-is-a-fairytale.png',
+      src: './assets/life-fairytale.png',
       alt: 'Life is a Fairy Tale preview',
     },
   ]);
-  assert.ok(existsSync(new URL('../assets/life-is-a-fairytale.png', import.meta.url)));
+  assert.ok(existsSync(new URL('../assets/life-fairytale.png', import.meta.url)));
   assert.ok(existsSync(new URL('../assets/story-goggles.png', import.meta.url)));
   assert.ok(existsSync(new URL('../assets/matter-of-perspective.png', import.meta.url)));
+  assert.equal(
+    assetSha256('../assets/life-fairytale.png'),
+    '389b7583a074e805b7b62ea27a146867d7eaaa29db14ed559e4308af8c0da288',
+  );
 });
 
 test('publishes the local demo as a repo-relative static site', () => {
