@@ -111,6 +111,18 @@ test('normalizes API-returned storage asset paths before rendering media', () =>
   assert.equal(demoBundle.includes('outputs:h.outputs??[]'), false);
 });
 
+test('verifies a backend story still exists before opening the animated watch view', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('verifyStoryBeforeWatch'));
+  assert.ok(demoBundle.includes('type:"RESET_STORY"'));
+  assert.equal(demoBundle.includes('a!=null&&t({type:"SET_OVERLAY",overlay:"watch"})'), false);
+});
+
 test('sets the browser page title to Creverse Hub', () => {
   assert.ok(html.includes('<title>Creverse Hub</title>'));
   assert.equal(html.includes('<title>Supermarket Game Hub</title>'), false);
