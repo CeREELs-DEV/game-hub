@@ -37,5 +37,14 @@ test('renders the six playable game cards and removes coming soon content', () =
 });
 
 test('publishes the local demo as a repo-relative static site', () => {
-  assert.ok(existsSync(new URL('../demo/index.html', import.meta.url)));
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  assert.ok(existsSync(demoIndexUrl));
+
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('https://life-fairy-api.7hpym90yj95fy.ap-northeast-2.cs.amazonlightsail.com'));
+  assert.ok(demoBundle.includes('./bgm.mp3'));
 });
