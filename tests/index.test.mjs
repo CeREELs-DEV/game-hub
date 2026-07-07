@@ -14,26 +14,52 @@ function getCardTitles() {
   return [...html.matchAll(/<h2 class="title">([^<]+)<\/h2>/g)].map(([, title]) => title);
 }
 
+function getCardImages() {
+  return [...html.matchAll(/<a class="col [^"]+" href="[^"]+"[^>]*aria-label="([^"]+)"[^>]*>[\s\S]*?<img src="([^"]+)" alt="([^"]+)"/g)].map(
+    ([, label, src, alt]) => ({ label, src, alt }),
+  );
+}
+
 test('renders the six playable game cards and removes coming soon content', () => {
   assert.ok(html.includes('6 / 6 PLAYABLE'));
   assert.deepEqual(getCardTitles(), [
+    'Life is a Fairy Tale',
+    'STORY GOGGLES',
+    'MATTER OF PERSPECTIVE',
     'Connections',
     'Coupang',
     'Escape Room',
-    'Life is a Fairy Tale',
-    'Two',
-    'Literary',
   ]);
   assert.deepEqual(getCardAnchors(), [
+    { label: 'Life is a Fairy Tale', href: './demo/' },
+    { label: 'STORY GOGGLES', href: 'https://cereels-dev.github.io/two/' },
+    { label: 'MATTER OF PERSPECTIVE', href: 'https://cereels-dev.github.io/literary/' },
     { label: 'Connections', href: 'https://cereels-dev.github.io/game-hub/connections/' },
     { label: 'Coupang', href: 'https://cereels-gamedev.github.io/coupang/' },
     { label: 'Escape Room', href: 'https://cereels-gamedev.github.io/escape-room/' },
-    { label: 'Life is a Fairy Tale', href: './demo/' },
-    { label: 'Two', href: 'https://cereels-dev.github.io/two/' },
-    { label: 'Literary', href: 'https://cereels-dev.github.io/literary/' },
   ]);
   assert.equal(html.includes('Smoothie Bar'), false);
   assert.equal(html.includes('COMING SOON'), false);
+  assert.deepEqual(getCardImages().slice(0, 3), [
+    {
+      label: 'Life is a Fairy Tale',
+      src: './assets/life-is-a-fairytale.png',
+      alt: 'Life is a Fairy Tale preview',
+    },
+    {
+      label: 'STORY GOGGLES',
+      src: './assets/story-goggles.png',
+      alt: 'STORY GOGGLES preview',
+    },
+    {
+      label: 'MATTER OF PERSPECTIVE',
+      src: './assets/matter-of-perspective.png',
+      alt: 'MATTER OF PERSPECTIVE preview',
+    },
+  ]);
+  assert.ok(existsSync(new URL('../assets/life-is-a-fairytale.png', import.meta.url)));
+  assert.ok(existsSync(new URL('../assets/story-goggles.png', import.meta.url)));
+  assert.ok(existsSync(new URL('../assets/matter-of-perspective.png', import.meta.url)));
 });
 
 test('publishes the local demo as a repo-relative static site', () => {
