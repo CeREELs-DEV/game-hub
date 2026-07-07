@@ -104,12 +104,9 @@ test('normalizes API-returned storage asset paths before rendering media', () =>
   assert.ok(scriptMatch);
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.ok(demoBundle.includes('normalizeApiAssetUrl'));
-  assert.equal(demoBundle.includes('l[g]=f.imageUrl'), false);
-  assert.equal(demoBundle.includes('u[g]=f.layers'), false);
-  assert.equal(demoBundle.includes('url:h.imageUrl'), false);
-  assert.equal(demoBundle.includes('layers:p.layers'), false);
-  assert.equal(demoBundle.includes('outputs:h.outputs??[]'), false);
+  assert.match(demoBundle, /startsWith\("\/"\)&&[a-zA-Z_$][\w$]*!==""\?`\$\{[a-zA-Z_$][\w$]*\}\$\{[a-zA-Z_$][\w$]*\}`:[a-zA-Z_$][\w$]*/);
+  assert.match(demoBundle, /imageUrl:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.imageUrl\),voiceUrl:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.voiceUrl\),layers:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.layers\)/);
+  assert.match(demoBundle, /outputs:.*?\.map\([a-zA-Z_$][\w$]*=>\(\{\.\.\.[a-zA-Z_$][\w$]*,url:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.url\)\}\)\),bgmUrl:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.bgmUrl\)/);
 });
 
 test('verifies a backend story still exists before opening the animated watch view', () => {
@@ -119,7 +116,8 @@ test('verifies a backend story still exists before opening the animated watch vi
   assert.ok(scriptMatch);
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.ok(demoBundle.includes('verifyStoryBeforeWatch'));
+  assert.match(demoBundle, /await [a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\),[a-zA-Z_$][\w$]*\(\{type:"SET_OVERLAY",overlay:"watch"\}\)/);
+  assert.match(demoBundle, /\/404\|not found\/i\.test\([a-zA-Z_$][\w$]*\)\)\{[a-zA-Z_$][\w$]*\(\{type:"RESET_STORY"\}\);return\}/);
   assert.ok(demoBundle.includes('type:"RESET_STORY"'));
   assert.equal(demoBundle.includes('a!=null&&t({type:"SET_OVERLAY",overlay:"watch"})'), false);
 });
