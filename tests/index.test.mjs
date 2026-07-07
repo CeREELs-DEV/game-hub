@@ -124,6 +124,18 @@ test('verifies a backend story still exists before opening the animated watch vi
   assert.equal(demoBundle.includes('a!=null&&t({type:"SET_OVERLAY",overlay:"watch"})'), false);
 });
 
+test('does not automatically call heavy parallax layer generation after each image', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.equal(demoBundle.includes('typeof Hc=="function"'), false);
+  assert.equal(demoBundle.includes('Hc(n,x)'), false);
+  assert.equal(demoBundle.includes('/layers'), false);
+});
+
 test('sets the browser page title to Creverse Hub', () => {
   assert.ok(html.includes('<title>Creverse Hub</title>'));
   assert.equal(html.includes('<title>Supermarket Game Hub</title>'), false);
