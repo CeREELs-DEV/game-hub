@@ -23,17 +23,17 @@ function getCardImages() {
 test('renders the six playable game cards and removes coming soon content', () => {
   assert.ok(html.includes('6 / 6 PLAYABLE'));
   assert.deepEqual(getCardTitles(), [
-    'Life is a Fairy Tale',
-    'STORY GOGGLES',
     'MATTER OF PERSPECTIVE',
+    'STORY GOGGLES',
+    'Life is a Fairy Tale',
     'Connections',
     'Coupang',
     'Escape Room',
   ]);
   assert.deepEqual(getCardAnchors(), [
-    { label: 'Life is a Fairy Tale', href: './demo/' },
-    { label: 'STORY GOGGLES', href: 'https://cereels-dev.github.io/two/' },
     { label: 'MATTER OF PERSPECTIVE', href: 'https://cereels-dev.github.io/literary/' },
+    { label: 'STORY GOGGLES', href: 'https://cereels-dev.github.io/two/' },
+    { label: 'Life is a Fairy Tale', href: './demo/' },
     { label: 'Connections', href: 'https://cereels-dev.github.io/game-hub/connections/' },
     { label: 'Coupang', href: 'https://cereels-gamedev.github.io/coupang/' },
     { label: 'Escape Room', href: 'https://cereels-gamedev.github.io/escape-room/' },
@@ -42,9 +42,9 @@ test('renders the six playable game cards and removes coming soon content', () =
   assert.equal(html.includes('COMING SOON'), false);
   assert.deepEqual(getCardImages().slice(0, 3), [
     {
-      label: 'Life is a Fairy Tale',
-      src: './assets/life-is-a-fairytale.png',
-      alt: 'Life is a Fairy Tale preview',
+      label: 'MATTER OF PERSPECTIVE',
+      src: './assets/matter-of-perspective.png',
+      alt: 'MATTER OF PERSPECTIVE preview',
     },
     {
       label: 'STORY GOGGLES',
@@ -52,9 +52,9 @@ test('renders the six playable game cards and removes coming soon content', () =
       alt: 'STORY GOGGLES preview',
     },
     {
-      label: 'MATTER OF PERSPECTIVE',
-      src: './assets/matter-of-perspective.png',
-      alt: 'MATTER OF PERSPECTIVE preview',
+      label: 'Life is a Fairy Tale',
+      src: './assets/life-is-a-fairytale.png',
+      alt: 'Life is a Fairy Tale preview',
     },
   ]);
   assert.ok(existsSync(new URL('../assets/life-is-a-fairytale.png', import.meta.url)));
