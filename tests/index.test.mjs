@@ -62,8 +62,10 @@ test('renders the six playable game cards and removes coming soon content', () =
       alt: 'Life is a Fairy Tale preview',
     },
   ]);
-  assert.ok(html.includes('.c-demo .thumb,.c-two .thumb,.c-lit .thumb{aspect-ratio:16/9;}'));
-  assert.ok(html.includes('.c-demo .thumb img,.c-two .thumb img,.c-lit .thumb img{object-fit:cover;}'));
+  assert.ok(html.includes('.thumb{\n    width:100%;aspect-ratio:4/3;'));
+  assert.ok(html.includes('.thumb img{width:100%;height:100%;object-fit:cover;display:block;}'));
+  assert.equal(html.includes('aspect-ratio:16/9'), false);
+  assert.equal(html.includes('object-fit:contain'), false);
   assert.ok(existsSync(new URL('../assets/life-fairytale-wide.png', import.meta.url)));
   assert.ok(existsSync(new URL('../assets/story-goggles-wide.png', import.meta.url)));
   assert.ok(existsSync(new URL('../assets/matter-of-perspective-wide.png', import.meta.url)));
