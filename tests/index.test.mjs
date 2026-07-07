@@ -48,26 +48,35 @@ test('renders the six playable game cards and removes coming soon content', () =
   assert.deepEqual(getCardImages().slice(0, 3), [
     {
       label: 'MATTER OF PERSPECTIVE',
-      src: './assets/matter-of-perspective.png',
+      src: './assets/matter-of-perspective-wide.png',
       alt: 'MATTER OF PERSPECTIVE preview',
     },
     {
       label: 'STORY GOGGLES',
-      src: './assets/story-goggles.png',
+      src: './assets/story-goggles-wide.png',
       alt: 'STORY GOGGLES preview',
     },
     {
       label: 'Life is a Fairy Tale',
-      src: './assets/life-fairytale.png',
+      src: './assets/life-fairytale-wide.png',
       alt: 'Life is a Fairy Tale preview',
     },
   ]);
-  assert.ok(existsSync(new URL('../assets/life-fairytale.png', import.meta.url)));
-  assert.ok(existsSync(new URL('../assets/story-goggles.png', import.meta.url)));
-  assert.ok(existsSync(new URL('../assets/matter-of-perspective.png', import.meta.url)));
+  assert.ok(html.includes('.c-demo .thumb img,.c-two .thumb img,.c-lit .thumb img{object-fit:contain;}'));
+  assert.ok(existsSync(new URL('../assets/life-fairytale-wide.png', import.meta.url)));
+  assert.ok(existsSync(new URL('../assets/story-goggles-wide.png', import.meta.url)));
+  assert.ok(existsSync(new URL('../assets/matter-of-perspective-wide.png', import.meta.url)));
   assert.equal(
-    assetSha256('../assets/life-fairytale.png'),
-    '389b7583a074e805b7b62ea27a146867d7eaaa29db14ed559e4308af8c0da288',
+    assetSha256('../assets/matter-of-perspective-wide.png'),
+    '1d28f60aabef4a36ce1ed93388b4fafb3b3b6cd5336ba0e9363782e558f151c0',
+  );
+  assert.equal(
+    assetSha256('../assets/story-goggles-wide.png'),
+    '62cb4f2f077e29574a5d677bb891eb467559ae13dc8b2b5526ffe9e6ceeef119',
+  );
+  assert.equal(
+    assetSha256('../assets/life-fairytale-wide.png'),
+    '92cd276f77607e36531babc6e8a631b06c2dd47f146ad9fb071c6bc15e26d135',
   );
 });
 
