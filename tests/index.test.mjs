@@ -99,26 +99,28 @@ test('publishes the functional local demo as a repo-relative static app', () => 
   assert.ok(demoBundle.includes('./bgm.mp3'));
 });
 
-test('publishes the v3 fairy tale sample story and journal image', () => {
+test('publishes the v3 fairy tale prototype diary samples and journal image', () => {
   const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
   const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
   assert.ok(scriptMatch);
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.ok(demoBundle.includes('Computer Book'));
+  assert.ok(demoBundle.includes('A Boring Day'));
+  assert.ok(demoBundle.includes('The Worst Luck'));
+  assert.ok(demoBundle.includes('kimchi fried rice'));
   assert.ok(demoBundle.includes('Ooh, a bookstore adventure!'));
-  assert.ok(demoBundle.includes('Jongheon, cheerful.'));
-  assert.ok(demoBundle.includes('Mom gave me money'));
+  assert.ok(demoBundle.includes('Not sure what to write? Tap an example diary entry:'));
   assert.equal(demoBundle.includes('Jonah Pickett'), false);
+  assert.equal(demoBundle.includes('Computer Book'), false);
 
   const sampleImages = readdirSync(new URL('../demo/assets/', import.meta.url)).filter((name) =>
     /^sample-moment-.*\.jpg$/.test(name),
   );
-  assert.deepEqual(sampleImages, ['sample-moment-DsBFViN7.jpg']);
+  assert.deepEqual(sampleImages, ['sample-moment-Dv4nBm5i.jpg']);
   assert.equal(
     assetSha256(`../demo/assets/${sampleImages[0]}`),
-    '3aaf797ce3cb3a9d21d8baef6d670a373fc6c8ec1785af999db2ff1eb2b3275b',
+    '21321328cf38e7eaaf9c083d9a17eb616112de971c80a34bccc3c0ca8a5ae87b',
   );
 });
 
