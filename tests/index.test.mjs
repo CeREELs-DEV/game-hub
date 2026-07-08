@@ -124,6 +124,22 @@ test('publishes the v3 fairy tale prototype diary samples and journal image', ()
   );
 });
 
+test('publishes the prototype photo step instead of the camera overlay entry state', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('Tap to add a photo'));
+  assert.ok(demoBundle.includes('No photo? Drag one of these up into the box:'));
+  assert.ok(demoBundle.includes('photoclear'));
+  assert.ok(demoBundle.includes('exarrow left'));
+  assert.ok(demoBundle.includes('exarrow right'));
+  assert.ok(demoBundle.includes('capture:"environment"'));
+  assert.equal(demoBundle.includes('Open camera'), false);
+});
+
 test('normalizes API-returned storage asset paths before rendering media', () => {
   const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
