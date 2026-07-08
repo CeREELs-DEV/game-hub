@@ -114,13 +114,17 @@ test('publishes the v3 fairy tale prototype diary samples and journal image', ()
   assert.equal(demoBundle.includes('Jonah Pickett'), false);
   assert.equal(demoBundle.includes('Computer Book'), false);
 
-  const sampleImages = readdirSync(new URL('../demo/assets/', import.meta.url)).filter((name) =>
-    /^sample-moment-.*\.jpg$/.test(name),
-  );
-  assert.deepEqual(sampleImages, ['sample-moment-Dv4nBm5i.jpg']);
-  assert.equal(
-    assetSha256(`../demo/assets/${sampleImages[0]}`),
-    '21321328cf38e7eaaf9c083d9a17eb616112de971c80a34bccc3c0ca8a5ae87b',
+  const sampleImages = readdirSync(new URL('../demo/assets/', import.meta.url))
+    .filter((name) => /^sample-moment-.*\.jpg$/.test(name))
+    .sort();
+  assert.equal(sampleImages.length, 3);
+  assert.deepEqual(
+    sampleImages.map((name) => assetSha256(`../demo/assets/${name}`)).sort(),
+    [
+      '031fa2acdc174646913f69a057f45d912f96a11f805a493b46f7b564ae7f9b39',
+      '21321328cf38e7eaaf9c083d9a17eb616112de971c80a34bccc3c0ca8a5ae87b',
+      'd8b2b22ee87abd13957a928b1838a97ce552bf480a624109da9ee237db6b7902',
+    ],
   );
 });
 
@@ -128,16 +132,32 @@ test('publishes the prototype photo step instead of the camera overlay entry sta
   const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
   const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  const cssMatch = demoHtml.match(/href="(\.\/assets\/index-[^"]+\.css)"/);
   assert.ok(scriptMatch);
+  assert.ok(cssMatch);
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  const demoCss = readFileSync(new URL(`../demo/${cssMatch[1]}`, import.meta.url), 'utf8');
   assert.ok(demoBundle.includes('Tap to add a photo'));
   assert.ok(demoBundle.includes('No photo? Drag one of these up into the box:'));
+  assert.ok(demoBundle.includes('a game you played'));
+  assert.ok(demoBundle.includes('something yummy you ate'));
+  assert.ok(demoBundle.includes('Frames'));
+  assert.ok(demoBundle.includes('0 0 40 40'));
   assert.ok(demoBundle.includes('photoclear'));
   assert.ok(demoBundle.includes('exarrow left'));
   assert.ok(demoBundle.includes('exarrow right'));
   assert.ok(demoBundle.includes('capture:"environment"'));
   assert.equal(demoBundle.includes('Open camera'), false);
+  assert.ok(demoCss.includes('.chosen .swatch{width:64px;height:64px'));
+  assert.ok(demoCss.includes('.chosen .swatch.swatch-svg'));
+  assert.ok(demoCss.includes('.chosen .swatch.swatch-svg svg{width:100%;height:100%;padding:8px;box-sizing:border-box}'));
+  assert.ok(
+    demoCss.includes(
+      '.canvaszone{flex:1;padding:16px 22px 12px;background:linear-gradient(180deg,#b6e1ed,#d6eff3 60%,#e9f7fa);',
+    ),
+  );
+  assert.ok(demoCss.includes('box-shadow:none'));
 });
 
 test('normalizes API-returned storage asset paths before rendering media', () => {
