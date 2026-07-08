@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
@@ -97,6 +97,29 @@ test('publishes the functional local demo as a repo-relative static app', () => 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
   assert.ok(demoBundle.includes('https://life-fairy-api.7hpym90yj95fy.ap-northeast-2.cs.amazonlightsail.com'));
   assert.ok(demoBundle.includes('./bgm.mp3'));
+});
+
+test('publishes the v3 fairy tale sample story and journal image', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('Computer Book'));
+  assert.ok(demoBundle.includes('Ooh, a bookstore adventure!'));
+  assert.ok(demoBundle.includes('Jongheon, cheerful.'));
+  assert.ok(demoBundle.includes('Mom gave me money'));
+  assert.equal(demoBundle.includes('Jonah Pickett'), false);
+
+  const sampleImages = readdirSync(new URL('../demo/assets/', import.meta.url)).filter((name) =>
+    /^sample-moment-.*\.jpg$/.test(name),
+  );
+  assert.deepEqual(sampleImages, ['sample-moment-DsBFViN7.jpg']);
+  assert.equal(
+    assetSha256(`../demo/assets/${sampleImages[0]}`),
+    '3aaf797ce3cb3a9d21d8baef6d670a373fc6c8ec1785af999db2ff1eb2b3275b',
+  );
 });
 
 test('normalizes API-returned storage asset paths before rendering media', () => {
