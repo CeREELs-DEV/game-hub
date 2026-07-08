@@ -1,15 +1,13 @@
 # Life is a Fairy Tale demo
 
-`index.html` is a standalone prototype snapshot for the Life is a Fairy Tale UI.
-It intentionally embeds the v3 sample text and sample images directly in the
-HTML so the published demo matches the supplied prototype without depending on
-the old Vite bundle.
+This directory publishes the built React app for Life is a Fairy Tale.
+`index.html` must stay a small app loader that mounts `#root` and loads the
+hashed files in `./assets/`; replacing it with a standalone prototype HTML
+bypasses the live app logic and breaks backend-backed flows.
 
-Current source snapshot:
+Current source workspace:
 
-- `/Users/suhyeon/Downloads/20260708_Fairy Tale_prototype_v3.html`
-- SHA-256: `be3f470c52ee0d82cea79bdf681ee129bc4669aec7ebb660aba9c77c71618cfc`
+- `/Users/suhyeon/Desktop/demo/web`
 
-The files under `demo/assets/` are legacy build artifacts. They are not loaded
-by the current standalone `index.html`, but are left in place to avoid unrelated
-asset churn.
+When the UI changes, update and build the React source, then copy the generated
+`dist` output into this directory.
