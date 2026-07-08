@@ -1,17 +1,15 @@
-# web/public
+# Life is a Fairy Tale demo
 
-Static assets served by Vite (e.g. this folder's `bgm.mp3` is emitted next to
-the built `index.html` and can be referenced with `./bgm.mp3`).
+`index.html` is a standalone prototype snapshot for the Life is a Fairy Tale UI.
+It intentionally embeds the v3 sample text and sample images directly in the
+HTML so the published demo matches the supplied prototype without depending on
+the old Vite bundle.
 
-## Background music — `bgm.mp3`
+Current source snapshot:
 
-The animated comic ("▶ Animated comic" in Watch) loops a single background
-track while it narrates each cut. Drop your own mp3 here named exactly:
+- `/Users/suhyeon/Downloads/20260708_Fairy Tale_prototype_v3.html`
+- SHA-256: `be3f470c52ee0d82cea79bdf681ee129bc4669aec7ebb660aba9c77c71618cfc`
 
-```
-web/public/bgm.mp3
-```
-
-It is referenced by `BGM_SRC = './bgm.mp3'` in `web/src/components/Watch.tsx` and
-plays at low volume (0.18), looping, tied to the play/pause control. If the file
-is absent, playback still works — there is simply no background music.
+The files under `demo/assets/` are legacy build artifacts. They are not loaded
+by the current standalone `index.html`, but are left in place to avoid unrelated
+asset churn.

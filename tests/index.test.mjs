@@ -83,55 +83,33 @@ test('renders the six playable game cards and removes coming soon content', () =
   );
 });
 
-test('publishes the local demo as a repo-relative static site', () => {
+test('publishes the Life is a Fairy Tale v3 prototype as a standalone static demo', () => {
   const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
   assert.ok(existsSync(demoIndexUrl));
 
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
-  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
-  assert.ok(scriptMatch);
-  assert.notEqual(scriptMatch[1], './assets/index-CPTZC-Cd.js');
-
-  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.ok(demoBundle.includes('https://life-fairy-api.7hpym90yj95fy.ap-northeast-2.cs.amazonlightsail.com'));
-  assert.ok(demoBundle.includes('./bgm.mp3'));
+  assert.ok(demoHtml.includes('<div class="stage">'));
+  assert.ok(demoHtml.includes('<div class="wordmark">Life is a Fairy Tale</div>'));
+  assert.ok(demoHtml.includes('<div id="controlBody"></div>'));
+  assert.ok(demoHtml.includes('const STYLES=['));
+  assert.ok(demoHtml.includes('startBlank();   // land on STEP 1 of the flow'));
+  assert.equal(demoHtml.includes('<div id="root"></div>'), false);
+  assert.equal(demoHtml.includes('type="module" crossorigin src="./assets/index-'), false);
+  assert.equal(demoHtml.includes('https://life-fairy-api.7hpym90yj95fy.ap-northeast-2.cs.amazonlightsail.com'), false);
 });
 
-test('normalizes API-returned storage asset paths before rendering media', () => {
+test('keeps the v3 sample text and embedded sample images in the demo html', () => {
   const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
-  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
-  assert.ok(scriptMatch);
 
-  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.match(demoBundle, /startsWith\("\/"\)&&[a-zA-Z_$][\w$]*!==""\?`\$\{[a-zA-Z_$][\w$]*\}\$\{[a-zA-Z_$][\w$]*\}`:[a-zA-Z_$][\w$]*/);
-  assert.match(demoBundle, /imageUrl:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.imageUrl\),voiceUrl:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.voiceUrl\),layers:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.layers\)/);
-  assert.match(demoBundle, /outputs:.*?\.map\([a-zA-Z_$][\w$]*=>\(\{\.\.\.[a-zA-Z_$][\w$]*,url:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.url\)\}\)\),bgmUrl:[a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.bgmUrl\)/);
-});
-
-test('verifies a backend story still exists before opening the animated watch view', () => {
-  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
-  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
-  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
-  assert.ok(scriptMatch);
-
-  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.match(demoBundle, /await [a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\),[a-zA-Z_$][\w$]*\(\{type:"SET_OVERLAY",overlay:"watch"\}\)/);
-  assert.match(demoBundle, /\/404\|not found\/i\.test\([a-zA-Z_$][\w$]*\)\)\{[a-zA-Z_$][\w$]*\(\{type:"RESET_STORY"\}\);return\}/);
-  assert.ok(demoBundle.includes('type:"RESET_STORY"'));
-  assert.equal(demoBundle.includes('a!=null&&t({type:"SET_OVERLAY",overlay:"watch"})'), false);
-});
-
-test('does not automatically call heavy parallax layer generation after each image', () => {
-  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
-  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
-  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
-  assert.ok(scriptMatch);
-
-  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.equal(demoBundle.includes('typeof Hc=="function"'), false);
-  assert.equal(demoBundle.includes('Hc(n,x)'), false);
-  assert.equal(demoBundle.includes('/layers'), false);
+  assert.ok(demoHtml.includes('Computer Book'));
+  assert.ok(demoHtml.includes('Jongheon'));
+  assert.ok(demoHtml.includes('The bookstore'));
+  assert.ok(demoHtml.includes('Two kids between tall bookstore shelves, looking puzzled and let-down.'));
+  assert.ok(demoHtml.includes('Once Upon a Time in Korea'));
+  assert.ok(demoHtml.includes('data:image/jpeg;base64,'));
+  assert.ok(demoHtml.includes('data:image/png;base64,'));
+  assert.ok((demoHtml.match(/data:image\//g) ?? []).length > 10);
 });
 
 test('sets the browser page title to Creverse Hub', () => {
