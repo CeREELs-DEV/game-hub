@@ -160,6 +160,25 @@ test('publishes the prototype photo step instead of the camera overlay entry sta
   assert.ok(demoCss.includes('box-shadow:none'));
 });
 
+test('publishes the prototype arc board shell and backdrop styling', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  const cssMatch = demoHtml.match(/href="(\.\/assets\/index-[^"]+\.css)"/);
+  assert.ok(scriptMatch);
+  assert.ok(cssMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  const demoCss = readFileSync(new URL(`../demo/${cssMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('boardArea'));
+  assert.ok(demoBundle.includes('emptytap'));
+  assert.ok(demoBundle.includes('tap to add'));
+  assert.ok(demoBundle.includes('hintbob'));
+  assert.ok(demoCss.includes('background-image:url(./arc-backdrop-BIPnPopZ.jpg)'));
+  assert.ok(demoCss.includes('background-image:url(./arc-angel-DMO2vD6j.png)'));
+  assert.ok(demoCss.includes('background-image:url(./arc-devil-BEMTLZk7.png)'));
+});
+
 test('normalizes API-returned storage asset paths before rendering media', () => {
   const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
