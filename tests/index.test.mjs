@@ -170,10 +170,22 @@ test('publishes the prototype arc board shell and backdrop styling', () => {
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
   const demoCss = readFileSync(new URL(`../demo/${cssMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('Rags to Riches'));
+  assert.ok(demoBundle.includes('SUPERNOVA'));
+  assert.equal(demoBundle.includes('The Ugly Duckling'), false);
+  assert.equal(demoBundle.includes('Paper Cutout'), false);
   assert.ok(demoBundle.includes('boardArea'));
   assert.ok(demoBundle.includes('emptytap'));
   assert.ok(demoBundle.includes('tap to add'));
   assert.ok(demoBundle.includes('hintbob'));
+  assert.ok(demoCss.includes('background:#e9f7fa'));
+  assert.ok(demoCss.includes('white-space:nowrap'));
+  assert.ok(
+    demoCss.includes(
+      '@media (min-width:1040px){.storyhead{position:relative;padding-right:210px}.storyhead .animatebtn{position:absolute;top:10px;right:4px;margin:0}}',
+    ),
+  );
+  assert.ok(demoCss.includes('.homesteps .storyfytile.current .step-hd{background:var(--pp);border-bottom-color:var(--pp)}'));
   assert.ok(demoCss.includes('background-image:url(./arc-backdrop-BIPnPopZ.jpg)'));
   assert.ok(demoCss.includes('background-image:url(./arc-angel-DMO2vD6j.png)'));
   assert.ok(demoCss.includes('background-image:url(./arc-devil-BEMTLZk7.png)'));
