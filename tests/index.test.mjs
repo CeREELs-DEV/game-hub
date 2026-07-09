@@ -270,6 +270,13 @@ test('applies the selected step-three arc to story structuring payloads and pane
   assert.ok(demoBundle.includes('text:y.momentText.trim(),panelCount:y.count,arcId:A'));
   assert.ok(demoBundle.includes('analysis:m,panelCount:y.count,arcId:A'));
   assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count,A)'));
+  assert.equal(demoBundle.includes('`${l}: ${s.caption}`'), false);
+  assert.ok(demoBundle.includes('caption:u,sceneDirection:c,userCutText:s.userCutText??u'));
+  assert.ok(demoBundle.includes('onClick:()=>{g(D.title),t({type:"SET_MOMENT_TEXT",text:D.body})}'));
+  assert.ok(demoBundle.includes('t({type:"COMMIT_STEP",step:4})'));
+  assert.ok(demoBundle.includes('case"SET_MOMENT_TEXT":return{...e,momentText:t.text,storyId:null,syncError:null}'));
+  assert.ok(demoBundle.includes('case"SET_MOMENT_PHOTO":return{...e,momentPhoto:t.dataUrl,storyId:null,syncError:null}'));
+  assert.ok(demoBundle.includes('case"SET_STYLE":return{...e,style:t.style,storyId:null,syncError:null}'));
 });
 
 test('sets the browser page title to Creverse Hub', () => {
