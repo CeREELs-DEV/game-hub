@@ -266,12 +266,16 @@ test('applies the selected step-three arc to story structuring payloads and pane
   assert.ok(demoBundle.includes('const storyArcBeatsForStructuring='));
   assert.ok(demoBundle.includes('function applySelectedStoryArcToStructuredStory(e,t){'));
   assert.ok(demoBundle.includes('Selected story arc: ${ru[t].name}. Arc beat: ${l}.'));
+  assert.ok(demoBundle.includes('Fairy-tale visual adaptation: preserve the diary fact, but transform the scene to match this arc beat and its mood instead of drawing only a literal diary moment.'));
+  assert.ok(demoBundle.includes('Mood alignment: this panel fortune is ${f}; make the image atmosphere agree with that mood and avoid a caption-image mismatch.'));
+  assert.ok(demoBundle.includes('Story caption stays: ${u}.'));
   assert.ok(demoBundle.includes('const A=y.guideArc??"rags"'));
   assert.ok(demoBundle.includes('text:y.momentText.trim(),panelCount:y.count,arcId:A'));
   assert.ok(demoBundle.includes('analysis:m,panelCount:y.count,arcId:A'));
   assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count,A)'));
   assert.equal(demoBundle.includes('`${l}: ${s.caption}`'), false);
-  assert.ok(demoBundle.includes('caption:u,sceneDirection:c,userCutText:s.userCutText??u'));
+  assert.ok(demoBundle.includes('const l=storyArcBeatForStructuring(t,o,n),u=s.caption??s.userCutText??"",f=r[o]??s.fortune??.5,c=['));
+  assert.ok(demoBundle.includes('fortune:f,caption:u,sceneDirection:c,userCutText:s.userCutText??u'));
   assert.ok(demoBundle.includes('onClick:()=>{g(D.title),t({type:"SET_MOMENT_TEXT",text:D.body})}'));
   assert.ok(demoBundle.includes('t({type:"COMMIT_STEP",step:4})'));
   assert.ok(demoBundle.includes('case"SET_MOMENT_TEXT":return{...e,momentText:t.text,storyId:null,syncError:null}'));
