@@ -248,10 +248,26 @@ test('structures typed samples through dump mode and uses the fairy-tale photo g
   assert.ok(scriptMatch);
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.ok(demoBundle.includes('await Xc(x,{text:y.momentText.trim(),panelCount:y.count})'));
-  assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count)'));
+  assert.ok(demoBundle.includes('await Xc(x,{text:y.momentText.trim(),panelCount:y.count,arcId:A})'));
+  assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count,A)'));
   assert.equal(demoBundle.includes('await Xc(x,{text:y.momentText,panelCount:y.count})'), false);
   assert.equal(demoBundle.includes('await i0(x,"adventure",m,y.count)'), false);
+});
+
+test('applies the selected step-three arc to story structuring payloads and panels', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('const storyArcBeatsForStructuring='));
+  assert.ok(demoBundle.includes('function applySelectedStoryArcToStructuredStory(e,t){'));
+  assert.ok(demoBundle.includes('Selected story arc: ${ru[t].name}. Arc beat: ${l}.'));
+  assert.ok(demoBundle.includes('const A=y.guideArc??"rags"'));
+  assert.ok(demoBundle.includes('text:y.momentText.trim(),panelCount:y.count,arcId:A'));
+  assert.ok(demoBundle.includes('analysis:m,panelCount:y.count,arcId:A'));
+  assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count,A)'));
 });
 
 test('sets the browser page title to Creverse Hub', () => {
