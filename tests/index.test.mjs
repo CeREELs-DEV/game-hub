@@ -228,6 +228,32 @@ test('does not automatically call heavy parallax layer generation after each ima
   assert.equal(demoBundle.includes('/layers'), false);
 });
 
+test('sends only the main journal paragraph from the prototype diary sample', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('xA={x:.05,y:.245,w:.9,h:.51}'));
+  assert.ok(demoBundle.includes('doc:!0,crop:xA'));
+  assert.ok(demoBundle.includes('toDataURL("image/jpeg",.9)'));
+  assert.match(demoBundle, /onClick:\(\)=>void [a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.src,[a-zA-Z_$][\w$]*\.crop\)/);
+});
+
+test('structures typed samples through dump mode and uses the fairy-tale photo genre', () => {
+  const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
+  const demoHtml = readFileSync(demoIndexUrl, 'utf8');
+  const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
+  assert.ok(scriptMatch);
+
+  const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
+  assert.ok(demoBundle.includes('await Xc(x,{text:y.momentText.trim(),panelCount:y.count})'));
+  assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count)'));
+  assert.equal(demoBundle.includes('await Xc(x,{text:y.momentText,panelCount:y.count})'), false);
+  assert.equal(demoBundle.includes('await i0(x,"adventure",m,y.count)'), false);
+});
+
 test('sets the browser page title to Creverse Hub', () => {
   assert.ok(html.includes('<title>Creverse Hub</title>'));
   assert.equal(html.includes('<title>Supermarket Game Hub</title>'), false);
