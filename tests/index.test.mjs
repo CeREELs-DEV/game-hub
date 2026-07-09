@@ -243,15 +243,19 @@ test('sends only the main journal paragraph from the prototype diary sample', ()
   assert.match(demoBundle, /onClick:\(\)=>void [a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.src,[a-zA-Z_$][\w$]*\.crop\)/);
 });
 
-test('structures typed samples through dump mode and uses the fairy-tale photo genre', () => {
+test('structures typed samples through analyze then dump mode and uses the fairy-tale photo genre', () => {
   const demoIndexUrl = new URL('../demo/index.html', import.meta.url);
   const demoHtml = readFileSync(demoIndexUrl, 'utf8');
   const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
   assert.ok(scriptMatch);
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.ok(demoBundle.includes('await Xc(x,{text:y.momentText.trim(),panelCount:y.count,arcId:A})'));
+  assert.ok(demoBundle.includes('async function analyzeTextStoryInput(e,t,n){'));
+  assert.ok(demoBundle.includes('fetch(Ue("/api/stories/analyze-text")'));
+  assert.ok(demoBundle.includes('await analyzeTextStoryInput(y.momentText.trim(),y.count,A)'));
+  assert.ok(demoBundle.includes('await Xc(x,{analysis:m,panelCount:y.count,arcId:A})'));
   assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count,A)'));
+  assert.equal(demoBundle.includes('await Xc(x,{text:y.momentText.trim(),panelCount:y.count,arcId:A})'), false);
   assert.equal(demoBundle.includes('await Xc(x,{text:y.momentText,panelCount:y.count})'), false);
   assert.equal(demoBundle.includes('await i0(x,"adventure",m,y.count)'), false);
 });
@@ -269,8 +273,9 @@ test('applies the selected step-three arc to story structuring payloads and pane
   assert.ok(demoBundle.includes('Fairy-tale visual adaptation: preserve the diary fact, but transform the scene to match this arc beat and its mood instead of drawing only a literal diary moment.'));
   assert.ok(demoBundle.includes('Mood alignment: this panel fortune is ${f}; make the image atmosphere agree with that mood and avoid a caption-image mismatch.'));
   assert.ok(demoBundle.includes('Story caption stays: ${u}.'));
+  assert.ok(demoBundle.includes('normalizeStructuredStoryPanelCount(e,t)'));
   assert.ok(demoBundle.includes('const A=y.guideArc??"rags"'));
-  assert.ok(demoBundle.includes('text:y.momentText.trim(),panelCount:y.count,arcId:A'));
+  assert.ok(demoBundle.includes('await analyzeTextStoryInput(y.momentText.trim(),y.count,A)'));
   assert.ok(demoBundle.includes('analysis:m,panelCount:y.count,arcId:A'));
   assert.ok(demoBundle.includes('await i0(x,"magical",m,y.count,A)'));
   assert.equal(demoBundle.includes('`${l}: ${s.caption}`'), false);
