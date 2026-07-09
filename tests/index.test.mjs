@@ -91,6 +91,7 @@ test('publishes the functional local demo as a repo-relative static app', () => 
   const scriptMatch = demoHtml.match(/src="(\.\/assets\/index-[^"]+\.js)"/);
   assert.ok(scriptMatch);
   assert.notEqual(scriptMatch[1], './assets/index-CPTZC-Cd.js');
+  assert.notEqual(scriptMatch[1], './assets/index-DvNkIyDb.js');
   assert.ok(demoHtml.includes('<div id="root"></div>'));
   assert.equal(demoHtml.includes('<div class="stage">'), false);
 
@@ -235,8 +236,9 @@ test('sends only the main journal paragraph from the prototype diary sample', ()
   assert.ok(scriptMatch);
 
   const demoBundle = readFileSync(new URL(`../demo/${scriptMatch[1]}`, import.meta.url), 'utf8');
-  assert.ok(demoBundle.includes('xA={x:.05,y:.245,w:.9,h:.51}'));
-  assert.ok(demoBundle.includes('doc:!0,crop:xA'));
+  assert.ok(demoBundle.includes('journalMainCrop={x:.05,y:.245,w:.9,h:.51}'));
+  assert.ok(demoBundle.includes('doc:!0,crop:journalMainCrop'));
+  assert.equal(demoBundle.includes(',xA={x:.05,y:.245,w:.9,h:.51}'), false);
   assert.ok(demoBundle.includes('toDataURL("image/jpeg",.9)'));
   assert.match(demoBundle, /onClick:\(\)=>void [a-zA-Z_$][\w$]*\([a-zA-Z_$][\w$]*\.src,[a-zA-Z_$][\w$]*\.crop\)/);
 });
