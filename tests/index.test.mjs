@@ -21,6 +21,12 @@ function getCardImages() {
   );
 }
 
+function getCardLabelsWithIndexes() {
+  return [...html.matchAll(/<a class="col [^"]+" href="[^"]+"[^>]*aria-label="([^"]+)"[^>]*>\s*<div class="col-top"><span class="idx">([^<]+)<\/span>/g)].map(
+    ([, label, index]) => ({ label, index }),
+  );
+}
+
 function assetSha256(path) {
   return createHash('sha256').update(readFileSync(new URL(path, import.meta.url))).digest('hex');
 }
@@ -28,33 +34,41 @@ function assetSha256(path) {
 test('renders the six playable game cards and removes coming soon content', () => {
   assert.ok(html.includes('6 / 6 PLAYABLE'));
   assert.deepEqual(getCardTitles(), [
-    'MATTER OF PERSPECTIVE',
     'STORY GOGGLES',
+    'MATTER OF PERSPECTIVE',
     'Life is a Fairy Tale',
     'Connections',
     'Coupang',
     'Escape Room',
   ]);
   assert.deepEqual(getCardAnchors(), [
-    { label: 'MATTER OF PERSPECTIVE', href: 'https://cereels-dev.github.io/literary/' },
     { label: 'STORY GOGGLES', href: 'https://cereels-dev.github.io/two/' },
+    { label: 'MATTER OF PERSPECTIVE', href: 'https://cereels-dev.github.io/literary/' },
     { label: 'Life is a Fairy Tale', href: './demo/' },
     { label: 'Connections', href: 'https://cereels-dev.github.io/game-hub/connections/' },
     { label: 'Coupang', href: 'https://cereels-gamedev.github.io/coupang/' },
     { label: 'Escape Room', href: 'https://cereels-gamedev.github.io/escape-room/' },
   ]);
+  assert.deepEqual(getCardLabelsWithIndexes(), [
+    { label: 'STORY GOGGLES', index: '01' },
+    { label: 'MATTER OF PERSPECTIVE', index: '02' },
+    { label: 'Life is a Fairy Tale', index: '03' },
+    { label: 'Connections', index: '04' },
+    { label: 'Coupang', index: '05' },
+    { label: 'Escape Room', index: '06' },
+  ]);
   assert.equal(html.includes('Smoothie Bar'), false);
   assert.equal(html.includes('COMING SOON'), false);
   assert.deepEqual(getCardImages().slice(0, 3), [
     {
-      label: 'MATTER OF PERSPECTIVE',
-      src: './assets/matter-of-perspective-wide.png',
-      alt: 'MATTER OF PERSPECTIVE preview',
-    },
-    {
       label: 'STORY GOGGLES',
       src: './assets/story-goggles-wide.png',
       alt: 'STORY GOGGLES preview',
+    },
+    {
+      label: 'MATTER OF PERSPECTIVE',
+      src: './assets/matter-of-perspective-wide.png',
+      alt: 'MATTER OF PERSPECTIVE preview',
     },
     {
       label: 'Life is a Fairy Tale',
