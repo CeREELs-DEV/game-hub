@@ -15,6 +15,12 @@ function getCardTitles() {
   return [...html.matchAll(/<h2 class="title">([^<]+)<\/h2>/g)].map(([, title]) => title);
 }
 
+function getCardUpdates() {
+  return [...html.matchAll(/<h2 class="title">([^<]+)<\/h2>\s*<time class="updated" id="([^"]+)" datetime="([0-9]{4}-[0-9]{2}-[0-9]{2})">([^<]+)<\/time>/g)].map(
+    ([, title, id, datetime, text]) => ({ title, id, datetime, text }),
+  );
+}
+
 function getCardImages() {
   return [...html.matchAll(/<a class="col [^"]+" href="[^"]+"[^>]*aria-label="([^"]+)"[^>]*>[\s\S]*?<img src="([^"]+)" alt="([^"]+)"/g)].map(
     ([, label, src, alt]) => ({ label, src, alt }),
@@ -95,6 +101,22 @@ test('renders the six playable game cards and removes coming soon content', () =
     assetSha256('../assets/life-fairytale-wide.png'),
     '92cd276f77607e36531babc6e8a631b06c2dd47f146ad9fb071c6bc15e26d135',
   );
+});
+
+test('shows a semantic fixed update date directly below every card title', () => {
+  assert.deepEqual(getCardUpdates(), [
+    { title: 'STORY GOGGLES', id: 'updated-01', datetime: '2026-07-13', text: 'UPDATED · 2026.07.13' },
+    { title: 'MATTER OF PERSPECTIVE', id: 'updated-02', datetime: '2026-07-07', text: 'UPDATED · 2026.07.07' },
+    { title: 'Life is a Fairy Tale', id: 'updated-03', datetime: '2026-07-09', text: 'UPDATED · 2026.07.09' },
+    { title: 'Connections', id: 'updated-04', datetime: '2026-06-12', text: 'UPDATED · 2026.06.12' },
+    { title: 'Coupang', id: 'updated-05', datetime: '2026-06-12', text: 'UPDATED · 2026.06.12' },
+    { title: 'Escape Room', id: 'updated-06', datetime: '2026-06-12', text: 'UPDATED · 2026.06.12' },
+  ]);
+  for (const { label, index } of getCardLabelsWithIndexes()) {
+    assert.ok(html.includes(`aria-label="${label}" aria-describedby="updated-${index}"`));
+  }
+  assert.ok(html.includes(".updated{\n    display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;"));
+  assert.ok(html.includes('letter-spacing:.08em;color:var(--ink-soft);margin-top:8px;white-space:nowrap;'));
 });
 
 test('publishes the functional local demo as a repo-relative static app', () => {

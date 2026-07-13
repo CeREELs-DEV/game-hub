@@ -48,7 +48,7 @@ A안인 `UPDATED · YYYY.MM.DD`를 사용한다. 허브에 이미 사용 중인 
 
 ```html
 <h2 class="title">STORY GOGGLES</h2>
-<time class="updated" datetime="2026-07-13">UPDATED · 2026.07.13</time>
+<time class="updated" id="updated-01" datetime="2026-07-13">UPDATED · 2026.07.13</time>
 ```
 
 ## 날짜 산정 규칙
@@ -68,7 +68,7 @@ A안인 `UPDATED · YYYY.MM.DD`를 사용한다. 허브에 이미 사용 중인 
 
 ## 접근성 및 동작
 
-- 날짜는 카드 링크 내부의 일반 텍스트로 노출되어 스크린 리더에서도 타이틀 다음에 읽힌다.
+- 각 날짜에 고유한 `updated-NN` ID를 부여하고 카드 링크의 `aria-describedby`에서 참조해, 기존 `aria-label`을 유지하면서도 보조 기술에 날짜 설명을 전달한다.
 - `datetime` 속성에는 기계 판독 가능한 ISO 날짜를 제공한다.
 - 날짜 자체는 별도 링크나 버튼으로 만들지 않는다.
 - 모바일에서는 카드가 세로로 쌓이므로 별도 축약이나 줄바꿈 규칙이 필요하지 않다.
