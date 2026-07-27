@@ -1,0 +1,77 @@
+name: Test and deploy game hub
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: games/perspective/package-lock.json
+
+      - name: Install Perspective dependencies
+        run: npm ci --prefix games/perspective
+
+      - name: Test Perspective
+        run: npm test --prefix games/perspective
+
+      - name: Test hub integration
+        run: node --test tests/monorepo.test.mjs
+
+      - name: Build Perspective
+        run: npm run build --prefix games/perspective
+
+      - name: Assemble static site
+        run: |
+          mkdir -p _site/games
+          cp index.html _site/
+          cp -R assets _site/assets
+          for game in connections coupang escape-room fairy-tale story-goggles; do
+            cp -R "games/$game" "_site/games/$game"
+          done
+          cp -R games/perspective/dist _site/games/perspective
+          touch _site/.nojekyll
+
+      - name: Verify deploy artifact
+        run: |
+          for game in connections coupang escape-room fairy-tale perspective story-goggles; do
+            test -f "_site/games/$game/index.html"
+          done
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
