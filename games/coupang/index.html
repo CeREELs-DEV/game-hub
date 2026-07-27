@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Coupang</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Caveat:wght@600;700&family=DM+Sans:opsz,wght@9..40,600;9..40,800;9..40,900&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; background:#2b2a26; touch-action:none;
+    -webkit-user-select:none; user-select:none;
+    font-family:'Baloo 2', 'Comic Sans MS', 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; }
+  body { position:fixed; inset:0; }
+
+  #stage { position:fixed; left:0; top:0; width:1280px; height:720px; transform-origin:0 0; }
+  #scene { position:absolute; inset:0; overflow:hidden;
+    background:url('assets/bg.png') 0 0 / 100% 100% no-repeat #e4e3d6; }
+  #scene.shake { animation: shake .35s linear; }
+  @keyframes shake {
+    0%,100% { transform:translate(0,0); }
+    20% { transform:translate(-9px,5px); } 40% { transform:translate(8px,-5px); }
+    60% { transform:translate(-6px,3px); } 80% { transform:translate(4px,-2px); }
+  }
+
+  /* ── 벨트 구동 연출 (배경 위 반투명 스트릭) ── */
+  #beltGlide { position:absolute; z-index:8; pointer-events:none;
+    background:repeating-linear-gradient(90deg, #ffffff14 0 12px, #ffffff00 12px 120px); }
+
+  /* ── 카테고리 박스 (일러스트 에셋) ── */
+  .bin { position:absolute; z-index:20; background-size:contain; background-position:center bottom;
+    background-repeat:no-repeat; transition:transform .12s ease, filter .12s ease; }
+  .bin.hover { transform:scale(1.07); filter:drop-shadow(0 0 14px #ffd94e) brightness(1.06); }
+  .bin.pop { animation:binPop .35s ease; }
+  @keyframes binPop { 30% { transform:scale(1.12); } 100% { transform:scale(1); } }
+  .bin.wrong { animation:binWrong .4s ease; }
+  @keyframes binWrong {
+    0%,100% { transform:translateX(0); filter:drop-shadow(0 0 10px #ff3b3b); }
+    25% { transform:translateX(-10px); } 50% { transform:translateX(9px); } 75% { transform:translateX(-6px); }
+  }
+  .stored-fruit { position:absolute; width:56px; height:56px; object-fit:contain; pointer-events:none;
+    z-index:2; filter:drop-shadow(0 5px 3px #00000035);
+    transform:translate(-50%,-50%) rotate(var(--rot, 0deg)) scale(.18);
+    animation:fruitStore .28s cubic-bezier(.2,1.35,.34,1) forwards; }
+  @keyframes fruitStore {
+    0% { opacity:0; transform:translate(-50%,-50%) translateY(-22px) rotate(var(--rot, 0deg)) scale(.18); }
+    100% { opacity:1; transform:translate(-50%,-50%) rotate(var(--rot, 0deg)) scale(var(--s, 1)); }
+  }
+
+  /* ── 아이템: 과일 + 단어 라벨 ── */
+  .item { position:absolute; left:0; top:0; z-index:30; cursor:grab; will-change:transform;
+    width:158px; height:158px; }
+  .item .fruit { position:absolute; left:50%; top:50%; width:128px; height:128px;
+    transform:translate(-50%,-50%); object-fit:contain; pointer-events:none;
+    filter:drop-shadow(0 8px 8px #00000036); }
+  .item .wlabel { position:absolute; left:50%; top:72%; z-index:2;
+    transform:translate(-50%,-50%); min-width:88px; max-width:132px;
+    background:#fdf8ecd9; border:3px solid #2b2b2b; border-radius:14px;
+    padding:0 13px; font-family:'Patrick Hand','Comic Sans MS',sans-serif; font-size:28px;
+    line-height:1.16; color:#2b2b2b; white-space:nowrap; pointer-events:none;
+    text-align:center; box-shadow:0 3px 0 #00000022; overflow:hidden; text-overflow:ellipsis; }
+  .item .wlabel.long { font-size:24px; }
+  .item.fruit-banana .wlabel {
+    top:62%; left:52%; width:132px; max-width:132px; min-width:132px;
+    transform:translate(-50%,-50%) rotate(-17deg);
+    border-radius:18px 12px 18px 12px; font-size:25px; padding:0 10px;
+  }
+  .item.fruit-banana .wlabel.long { font-size:21px; }
+  .item.fruit-strawberry .wlabel,
+  .item.fruit-apple .wlabel,
+  .item.fruit-peach .wlabel,
+  .item.fruit-blueberry .wlabel,
+  .item.fruit-kiwi .wlabel,
+  .item.fruit-coconut .wlabel,
+  .item.fruit-grape .wlabel,
+  .item.fruit-mango .wlabel {
+    top:68%; width:122px; max-width:122px; min-width:104px;
+    border-radius:18px; background:#fdf8eccf;
+  }
+  .item.drag { cursor:grabbing; z-index:50; }
+  .item.drag .fruit { filter:drop-shadow(0 18px 16px #00000038); }
+  .item.storing .wlabel { display:none; }
+
+  /* ── 이펙트 캔버스 / 플로터 ── */
+  #fx { position:absolute; inset:0; z-index:60; pointer-events:none; }
+  .floater { position:absolute; z-index:65; pointer-events:none; font-weight:800; font-size:30px;
+    text-shadow:0 2px 0 #ffffff99; transform:translate(-50%,-50%);
+    animation:floatUp 1s ease-out forwards; white-space:nowrap; }
+  @keyframes floatUp { 0% { opacity:0; margin-top:8px; } 12% { opacity:1; margin-top:0; }
+    100% { opacity:0; margin-top:-78px; } }
+
+  /* ── HUD (상단 바) ── */
+  #hud { position:absolute; inset:0; z-index:70; pointer-events:none;
+    font-family:'DM Sans','Baloo 2','Segoe UI',sans-serif; }
+  #topBar { position:absolute; left:22px; right:22px; top:20px; height:62px;
+    display:flex; align-items:center; justify-content:space-between; padding:0; }
+  .hud-side { display:flex; align-items:center; gap:12px; min-width:330px; }
+  .hud-side.right { justify-content:flex-end; }
+  #factorySign { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:328px; height:82px; display:flex; align-items:center; justify-content:center; padding:0 38px; text-align:center;
+    background:linear-gradient(#c87918,#a96012); border-radius:8px;
+    box-shadow:0 6px 0 #73400e, 0 14px 22px #00000030, inset 0 0 0 2px #ffffff24; }
+  #factorySign img { width:232px; height:auto; display:block;
+    filter:drop-shadow(0 2px 0 #fff4d030) drop-shadow(0 3px 2px #0000002d); }
+  .hud-pill { min-height:52px; display:flex; align-items:center; gap:10px; justify-content:center;
+    padding:8px 16px; border-radius:12px; background:#262019; color:#fff3d8;
+    box-shadow:0 5px 0 #00000042, 0 14px 22px #00000030, inset 0 0 0 2px #ffe09628; }
+  .hud-pill small { font-size:10px; font-weight:900; letter-spacing:.12em; color:#c8b089; line-height:1; }
+  .life-pill { min-width:172px; justify-content:flex-start; }
+  .timer-pill { min-width:118px; }
+  .score-pill { min-width:156px; justify-content:flex-start; }
+  #hearts { display:flex; gap:6px; align-items:center; }
+  .heart { width:25px; height:23px; display:block; overflow:visible;
+    transition:filter .2s, transform .2s, opacity .2s;
+    filter:drop-shadow(0 2px 0 #00000060); }
+  .heart path { fill:#ff6b86; stroke:#ff9aae; stroke-width:1.5; }
+  .heart.off { filter:drop-shadow(0 2px 0 #00000060); transform:scale(.92); opacity:.9; }
+  .heart.off path { fill:#34302a; stroke:#4b443b; }
+  #scoreBox { position:relative; text-align:left; min-width:48px; height:24px; }
+  #score { font-size:24px; line-height:24px; font-weight:900; color:#fff6e8; text-shadow:0 2px 0 #00000045; }
+  #score.punch { animation:scorePunch .25s ease; }
+  @keyframes scorePunch { 40% { transform:scale(1.22); } 100% { transform:scale(1); } }
+  #combo { position:absolute; left:0; top:28px; font-size:11px; font-weight:900; color:#ffd469;
+    min-height:0; line-height:1.1; letter-spacing:.05em; white-space:nowrap; }
+  #timer { min-width:52px; text-align:center; font-size:24px; line-height:1; font-weight:900;
+    color:#fff6e8; text-shadow:0 2px 0 #00000045; }
+  #timer.low { color:#d61f1f; animation:timerPulse 1s ease infinite; }
+  @keyframes timerPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.16); } }
+
+  /* ── 라이프 경고 ── */
+  #lifeCue { position:absolute; inset:0; z-index:95; display:grid; place-items:center;
+    pointer-events:none; visibility:hidden; }
+  #lifeCue.on { visibility:visible; }
+  .life-cue-stack { display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transform-origin:center; }
+  #lifeCue img { position:relative; z-index:1; max-width:540px; max-height:430px; object-fit:contain;
+    filter:drop-shadow(0 16px 18px #00000055); transform-origin:center; }
+  .life-cue-text { position:relative; z-index:2; margin-top:-24px; font-size:82px; line-height:1; letter-spacing:13px;
+    color:#d94031; font-weight:900; text-shadow:0 6px 0 #fff4d0, 0 10px 14px #00000045; }
+  #lifeCue.on .life-cue-stack { animation:lifeCuePop 1s ease both; }
+  @keyframes lifeCuePop {
+    0% { opacity:0; transform:scale(.82) rotate(-3deg); }
+    10% { opacity:1; transform:scale(1.04) rotate(1deg); }
+    86% { opacity:1; transform:scale(1) rotate(0deg); }
+    100% { opacity:0; transform:scale(.92) rotate(2deg); }
+  }
+
+  /* ── 오버레이 ── */
+  #overlay { position:absolute; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
+    background:rgba(28,18,12,.62); backdrop-filter:blur(5px); }
+  #overlay.hidden { display:none; }
+  #overlay.game-over-layout { background:rgba(28,18,12,.46); backdrop-filter:blur(4px); }
+  .card { width:760px; max-width:92%; background:linear-gradient(#fffaf0,#f7ead6);
+    border-radius:22px; padding:42px 54px 40px; text-align:center; color:#41382b;
+    box-shadow:0 14px 0 #5a283859, 0 40px 90px #00000080, inset 0 0 0 3px #ffffffb3; }
+  .card.start-card { width:920px; }
+  .card.result-card { width:560px; }
+  .card h1 { font-size:58px; line-height:1; letter-spacing:9px; color:#c8780f;
+    margin-bottom:26px; text-shadow:0 5px 0 #fff4d0; font-weight:900; }
+  .card p { font-size:21px; line-height:1.55; margin-bottom:12px; color:#5f4d3e; font-weight:800; }
+  .card .small { font-size:17px; line-height:1.55; color:#8a7a5e; font-weight:900; }
+  .card .big { font-size:46px; line-height:1; font-weight:900; color:#2b2b2b; margin:12px 0 14px; }
+  .game-over-stage { position:relative; width:980px; height:590px; max-width:94%; color:#41382b; }
+  .game-over-title { position:absolute; left:338px; top:78px; z-index:4; width:540px;
+    text-align:center; white-space:nowrap; font-size:78px; line-height:1; letter-spacing:14px;
+    color:#c8780f; font-weight:900; text-shadow:0 5px 0 #fff4d0; }
+  .game-over-title .grab-letter { display:inline-block; transform:rotate(-4deg) translateY(2px); }
+  .game-over-hero { position:absolute; left:28px; top:8px; z-index:3; width:398px; height:500px;
+    object-fit:contain; filter:drop-shadow(0 18px 18px #00000035); pointer-events:none; }
+  .game-over-score-panel { position:absolute; left:338px; top:214px; z-index:2; width:540px; min-height:266px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px 46px 30px;
+    background:linear-gradient(#fffaf0,#f7ead6); border:5px solid #171717; border-radius:62px;
+    box-shadow:0 12px 0 #5a283859, 0 28px 56px #0000004d; text-align:center; }
+  .game-over-score-panel .small { font-size:17px; line-height:1.2; color:#8a7a5e; font-weight:900; }
+  .game-over-score-panel .big { font-size:46px; line-height:1; font-weight:900; color:#2b2b2b; margin:12px 0 14px; }
+  .game-over-score-panel .btn { margin-top:22px; }
+  .btn { margin-top:28px; padding:15px 58px; font-size:24px; font-weight:900; letter-spacing:5px;
+    font-family:'DM Sans','Baloo 2',sans-serif; color:#fff6e8;
+    background:linear-gradient(#ff8a73,#d95d50); border:0; border-radius:14px;
+    cursor:pointer; box-shadow:0 7px 0 #8e3328, 0 18px 28px #0000002d, inset 0 2px 0 #ffffff66;
+    transition:transform .08s, box-shadow .08s, filter .12s; }
+  .btn:hover { filter:brightness(1.07); }
+  .btn:active { transform:translateY(4px); box-shadow:0 3px 0 #8e3328, 0 10px 18px #00000024; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="scene">
+    <div id="beltGlide"></div>
+    <div id="bins"></div>
+    <div id="items"></div>
+    <canvas id="fx" width="1280" height="720"></canvas>
+
+    <div id="hud">
+      <div id="topBar">
+        <div class="hud-side left">
+          <div class="hud-pill life-pill"><small>LIFE</small><div id="hearts"></div></div>
+        </div>
+        <div id="factorySign"><img src="assets/coupang_logo.png" alt="Coupang"></div>
+        <div class="hud-side right">
+          <div class="hud-pill timer-pill"><small>TIME</small><div id="timer">90</div></div>
+          <div class="hud-pill score-pill"><small>SCORE</small><div id="scoreBox"><div id="score">0</div><div id="combo"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="lifeCue"><div class="life-cue-stack"><img id="lifeCueImg" src="" alt=""><div class="life-cue-text">WRONG</div></div></div>
+    <div id="overlay"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   COUPANG — 컨베이어 단어 분류 게임 (배경: assets/bg.png)
+   벨트 좌→우. 과일에 단어 라벨이 매달려 흐름.
+   3개 박스(Looking/Gathering/Mixing)에 분류, 어디에도 안 맞는 단어는
+   건드리지 않고 우측 끝 TRASH로 흘려보내야 정답.
+   데이터·좌표는 아래 상단 블록에서만 수정 (배경·에셋 교체 시 숫자만 변경)
+   ===================================================================== */
+
+// ── 레이아웃 좌표 (1280x720 디자인 기준, bg.png에 맞춤) ──
+const LAYOUT = {
+  stage : { w:1280, h:720 },
+  belt  : { spawnX:-100, xEnd:1018, itemY:205,          // 좌측 스폰 → 우측 끝, itemY=아이템 중심
+            face:{ x:0, y:106, w:1032, h:192 } },       // 구동 연출 오버레이 영역
+  trash : { x:1005, y:145, w:255, h:300, catchY:342, cx:1140 },  // 자동 낙하 수거 영역
+  bins  : [                                            // 카테고리 순서대로 매핑 (벨트 아래 3개)
+    { x:50,  y:404, w:395, h:315 },
+    { x:442, y:404, w:398, h:315 },
+    { x:836, y:404, w:398, h:315 },
+  ],
+};
+
+// ── 게임 밸런스 ──
+const CONFIG = {
+  lives: 3,
+  duration: 90,                                       // 라운드 제한 시간(초)
+  speedStart: 75,  speedRamp: 1.7,  speedMax: 225,    // 벨트 속도 px/s
+  spawnStart: 2.6, spawnMin: 1.2,   spawnRamp: 0.016, // 생성 간격(초)
+  trashChance: 0.3, trashGraceSec: 9,                 // 버릴 단어 비율·초반 유예
+  throwMinSpeed: 540, gravity: 2700,                  // 던지기 판정·중력
+  comboMax: 5,
+};
+
+// ── 단어 데이터 ──
+const CATEGORIES = [
+  { id:'looking',   short:'LOOKING',   img:'assets/box_looking.png',   c:'#e8a33d', d:'#a8501a',
+    words:['glanced','looked','noticed','spotted','stared','peeked','gazed'] },
+  { id:'gathering', short:'GATHERING', img:'assets/box_gathering.png', c:'#7ec850', d:'#487c24',
+    words:['piled','loaded','dumped','stored','gathered','collected','stacked'] },
+  { id:'mixing',    short:'MIXING',    img:'assets/box_mixing.png',    c:'#b07ce8', d:'#6f3fa8',
+    words:['blended','mixed','joined','combined','united','merged','fused'] },
+];
+const TRASH_WORDS = [   // 어느 박스에도 안 맞는 단어 — 건드리지 않고 TRASH로
+  'necessary','needed','key','basic','important','required','vital',
+  'exist','be','live','stay','last','remain','survive',
+];
+const FRUIT_NAMES = [   // 벨트에 흐르는 과일 (단어와 무관, 랜덤)
+  'apple','banana','strawberry','peach','grape','blueberry','kiwi','mango','coconut',
+];
+const FRUITS = FRUIT_NAMES.map(name => ({ name, src:`assets/fruit_${name}.png` }));
+const LIFE_CUES = ['assets/life_cue_1.png', 'assets/life_cue_2.png'];
+const GAME_OVER_ART = 'assets/life_game_over.png';
+for (const src of [...LIFE_CUES, GAME_OVER_ART]){
+  const img = new Image();
+  img.src = src;
+}
+const BIN_STACK_SLOTS = [
+  { x:.30, y:.49, s:.96, rot:-11 }, { x:.41, y:.48, s:1.02, rot:5 },
+  { x:.52, y:.49, s:.98, rot:13 },  { x:.63, y:.50, s:.95, rot:-8 },
+  { x:.74, y:.51, s:.92, rot:8 },   { x:.35, y:.39, s:.88, rot:17 },
+  { x:.47, y:.38, s:.90, rot:-14 }, { x:.59, y:.39, s:.88, rot:12 },
+  { x:.70, y:.40, s:.84, rot:-5 },  { x:.42, y:.30, s:.80, rot:9 },
+  { x:.54, y:.30, s:.82, rot:-9 },  { x:.66, y:.31, s:.78, rot:14 },
+];
+
+/* ===================== 이하 엔진 ===================== */
+
+const $ = id => document.getElementById(id);
+const stage = $('stage'), scene = $('scene');
+const itemsEl = $('items'), binsEl = $('bins'), fx = $('fx'), ctx = fx.getContext('2d');
+const overlayEl = $('overlay'), scoreEl = $('score'), comboEl = $('combo'), heartsEl = $('hearts');
+const beltGlideEl = $('beltGlide'), timerEl = $('timer');
+const lifeCueEl = $('lifeCue'), lifeCueImg = $('lifeCueImg');
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const rand = (a,b) => a + Math.random()*(b-a);
+
+// ── 스테이지 스케일 ──
+let scale = 1;
+function viewportRect(){
+  const vv = window.visualViewport;
+  if (vv) return { x:vv.offsetLeft, y:vv.offsetTop, w:vv.width, h:vv.height };
+  return { x:0, y:0,
+    w:window.innerWidth || document.documentElement.clientWidth || LAYOUT.stage.w,
+    h:window.innerHeight || document.documentElement.clientHeight || LAYOUT.stage.h };
+}
+function resize(){
+  const v = viewportRect();
+  const sw = LAYOUT.stage.w, sh = LAYOUT.stage.h;
+  scale = Math.max(0.1, Math.min(v.w/sw, v.h/sh));
+  const left = v.x + (v.w - sw*scale)/2;
+  const top = v.y + (v.h - sh*scale)/2;
+  stage.style.transform = `translate(${left}px,${top}px) scale(${scale})`;
+}
+addEventListener('resize', resize);
+addEventListener('orientationchange', resize);
+if (window.visualViewport){
+  visualViewport.addEventListener('resize', resize);
+  visualViewport.addEventListener('scroll', resize);
+}
+resize();
+
+// ── 고정 배치 ──
+(function placeScenery(){
+  const F = LAYOUT.belt.face;
+  beltGlideEl.style.cssText = `left:${F.x}px;top:${F.y}px;width:${F.w}px;height:${F.h}px;`;
+  CATEGORIES.forEach((cat,i)=>{
+    const r = LAYOUT.bins[i];
+    const el = document.createElement('div');
+    el.className = 'bin'; el.dataset.cat = cat.id;
+    el.style.cssText = `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;background-image:url('${cat.img}');`;
+    binsEl.appendChild(el);
+    cat.el = el; cat.rect = r; cat.stack = 0; cat.storedFruits = [];
+  });
+})();
+
+function addStoredFruit(cat, src){
+  const slot = BIN_STACK_SLOTS[cat.stack % BIN_STACK_SLOTS.length];
+  const layer = Math.floor(cat.stack / BIN_STACK_SLOTS.length);
+  const img = document.createElement('img');
+  img.className = 'stored-fruit';
+  img.draggable = false;
+  img.src = src;
+  img.style.left = `calc(${slot.x * 100}% + ${rand(-8, 8)}px)`;
+  img.style.top = `calc(${slot.y * 100}% - ${Math.min(layer * 12, 44)}px)`;
+  img.style.zIndex = 2 + cat.stack;
+  img.style.setProperty('--rot', `${slot.rot + rand(-5, 5)}deg`);
+  img.style.setProperty('--s', `${slot.s}`);
+  cat.el.appendChild(img);
+  cat.storedFruits.push(img);
+  cat.stack++;
+  if (cat.storedFruits.length > 24) cat.storedFruits.shift().remove();
+}
+function clearStoredFruits(){
+  CATEGORIES.forEach(cat => {
+    cat.stack = 0;
+    cat.storedFruits.forEach(el => el.remove());
+    cat.storedFruits = [];
+  });
+}
+
+// ── 사운드 (WebAudio 합성) ──
+let AC = null, master = null;
+function initAudio(){
+  if (AC) return;
+  AC = new (window.AudioContext || window.webkitAudioContext)();
+  master = AC.createGain(); master.gain.value = 0.5; master.connect(AC.destination);
+  // 공장 저음 험 (벨트 구동음)
+  const len = AC.sampleRate*2, buf = AC.createBuffer(1, len, AC.sampleRate);
+  const d = buf.getChannelData(0); let last = 0;
+  for (let i=0; i<len; i++){ last = (last + (Math.random()*2-1)*0.04) * 0.98; d[i] = last*3; }
+  const src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+  const lp = AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = 110;
+  const g = AC.createGain(); g.gain.value = 0.05;
+  src.connect(lp); lp.connect(g); g.connect(master); src.start();
+}
+function unlockAudio(){
+  initAudio();
+  if (AC && AC.state === 'suspended') AC.resume().catch(()=>{});
+}
+function tone(freq, dur, type='sine', vol=0.2, slideTo=null, delay=0){
+  if (!AC) return;
+  const t0 = AC.currentTime + delay;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t0);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0+dur);
+  g.gain.setValueAtTime(vol, t0);
+  g.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+  o.connect(g); g.connect(master); o.start(t0); o.stop(t0+dur+0.02);
+}
+function noiseBurst(dur, vol, freq, type='lowpass', delay=0){
+  if (!AC) return;
+  const t0 = AC.currentTime + delay;
+  const len = Math.ceil(AC.sampleRate*dur), buf = AC.createBuffer(1, len, AC.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i=0; i<len; i++) d[i] = (Math.random()*2-1) * (1 - i/len);
+  const src = AC.createBufferSource(); src.buffer = buf;
+  const f = AC.createBiquadFilter(); f.type = type; f.frequency.value = freq;
+  const g = AC.createGain(); g.gain.value = vol;
+  src.connect(f); f.connect(g); g.connect(master); src.start(t0);
+}
+const SFX = {
+  pickup : ()=>{ tone(520, .06, 'triangle', .16); },
+  drop   : ()=>{ noiseBurst(.06, .16, 420); },
+  correct: ()=>{ tone(660, .09, 'sine', .25); tone(880, .14, 'sine', .25, null, .07); noiseBurst(.04, .1, 2400, 'highpass'); },
+  trash  : ()=>{ noiseBurst(.13, .4, 800); tone(170, .1, 'square', .14); tone(720, .05, 'triangle', .1, null, .03); },
+  wrong  : ()=>{ tone(150, .3, 'sawtooth', .22, 88); },
+  miss   : ()=>{ tone(320, .4, 'sine', .2, 105); },
+  throw_ : ()=>{ noiseBurst(.14, .12, 1600, 'bandpass'); },
+  tick   : ()=>{ tone(980, .05, 'square', .12); },
+  timeup : ()=>{ tone(520, .25, 'triangle', .25); tone(390, .3, 'triangle', .25, null, .22); tone(260, .5, 'triangle', .25, null, .44); },
+};
+
+// ── 파티클 ──
+const P = [];
+function burst(x, y, colors, n, opt={}){
+  for (let i=0; i<n; i++){
+    const a = opt.angle!=null ? opt.angle + rand(-opt.spread||-.6, opt.spread||.6) : rand(0, Math.PI*2);
+    const sp = rand(opt.spMin||120, opt.spMax||420);
+    P.push({ x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - (opt.up||160),
+      life:0, max:rand(.45,.85), size:rand(4,9), rot:rand(0,6.28), vr:rand(-9,9),
+      color:colors[(Math.random()*colors.length)|0], g:opt.g!=null?opt.g:1300,
+      shape:opt.shape||'rect' });
+  }
+}
+function dust(x, y){
+  for (let i=0; i<7; i++)
+    P.push({ x:x+rand(-14,14), y:y+rand(-4,4), vx:rand(-50,50), vy:rand(-90,-20),
+      life:0, max:rand(.4,.7), size:rand(5,11), rot:0, vr:0, color:'#bba98e', g:-40, shape:'circle' });
+}
+function drawParticles(dt){
+  ctx.clearRect(0, 0, 1280, 720);
+  for (let i=P.length-1; i>=0; i--){
+    const p = P[i]; p.life += dt;
+    if (p.life >= p.max){ P.splice(i,1); continue; }
+    p.vy += p.g*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.rot += p.vr*dt;
+    const k = 1 - p.life/p.max;
+    ctx.save(); ctx.globalAlpha = k; ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    if (p.shape === 'circle'){ ctx.beginPath(); ctx.arc(0, 0, p.size*k+1, 0, 6.29); ctx.fill(); }
+    else ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.7);
+    ctx.restore();
+  }
+}
+
+// ── 플로터 텍스트 ──
+function floater(x, y, text, color='#2b2b2b', size=30){
+  const el = document.createElement('div');
+  el.className = 'floater'; el.textContent = text;
+  el.style.cssText = `left:${x}px;top:${y}px;color:${color};font-size:${size}px;`;
+  scene.appendChild(el);
+  setTimeout(()=>el.remove(), 1050);
+}
+
+// ── 게임 상태 ──
+let state = 'menu';           // menu | playing | lifeCue | over
+let items = [], drag = null;
+let score = 0, combo = 1, lives = CONFIG.lives, tPlay = 0, spawnTimer = 0;
+let timeLeft = CONFIG.duration, lastTickSec = -1;
+let glideOffset = 0;
+let lifeCueTimer = null;
+const pointer = { x:640, y:360 };
+const beltY = LAYOUT.belt.itemY;
+
+function beltSpeed(){ return Math.min(CONFIG.speedMax, CONFIG.speedStart + tPlay*CONFIG.speedRamp); }
+function spawnGap(){ return Math.max(CONFIG.spawnMin, CONFIG.spawnStart - tPlay*CONFIG.spawnRamp); }
+
+// ── 아이템 생성: 랜덤 과일 + 랜덤 단어 라벨 ──
+function spawnItem(){
+  const active = new Set(items.map(i=>i.word));
+  let word=null, cat=null;
+  for (let tries=0; tries<24 && word===null; tries++){
+    const isTrash = tPlay > CONFIG.trashGraceSec && Math.random() < CONFIG.trashChance;
+    if (isTrash){
+      const w = TRASH_WORDS[(Math.random()*TRASH_WORDS.length)|0];
+      if (!active.has(w)){ word = w; cat = null; }
+    } else {
+      const c = CATEGORIES[(Math.random()*CATEGORIES.length)|0];
+      const w = c.words[(Math.random()*c.words.length)|0];
+      if (!active.has(w)){ word = w; cat = c.id; }
+    }
+  }
+  if (word === null) return;
+  const fruit = FRUITS[(Math.random()*FRUITS.length)|0];
+  const el = document.createElement('div');
+  el.className = `item fruit-${fruit.name}`;
+  const img = document.createElement('img');
+  img.className = 'fruit'; img.draggable = false;
+  img.src = fruit.src;
+  img.onerror = ()=> img.remove();                  // 과일 에셋 없으면 라벨만 표시
+  const lab = document.createElement('div');
+  lab.className = 'wlabel'; lab.textContent = word;
+  if (word.length >= 8) lab.classList.add('long');
+  el.appendChild(img); el.appendChild(lab);
+  itemsEl.appendChild(el);
+  const it = { el, word, cat, trash:cat===null,
+    fruitSrc:fruit.src, fruitName:fruit.name,
+    x:LAYOUT.belt.spawnX, y:beltY, py:beltY, vx:0, vy:0, rot:rand(-3,3),
+    mode:'belt', bob:rand(0,6.28), spawnT:0, squash:0,
+    grabDX:0, grabDY:0, tw:null, fade:1 };
+  el.addEventListener('pointerdown', e => grabItem(e, it));
+  items.push(it);
+}
+
+// ── 드래그 ──
+function toDesign(e){
+  const r = stage.getBoundingClientRect();
+  return { x:(e.clientX - r.left)/scale, y:(e.clientY - r.top)/scale };
+}
+function grabItem(e, it){
+  if (state !== 'playing' || drag) return;
+  if (it.mode === 'resolve' || it.mode === 'fall' || it.mode === 'chute') return;
+  e.preventDefault();
+  const p = toDesign(e);
+  pointer.x = p.x; pointer.y = p.y;
+  drag = it; it.mode = 'drag'; it.vx = 0; it.vy = 0; it.tw = null;
+  it.grabDX = clamp(it.x - p.x, -60, 60); it.grabDY = clamp(it.y - p.y, -60, 60);
+  it.el.classList.add('drag');
+  SFX.pickup();
+}
+addEventListener('pointermove', e => {
+  const p = toDesign(e); pointer.x = p.x; pointer.y = p.y;
+});
+addEventListener('pointerup', releaseDrag);
+addEventListener('pointercancel', releaseDrag);
+addEventListener('blur', releaseDrag);
+function releaseDrag(){
+  if (!drag) return;
+  const it = drag; drag = null;
+  it.el.classList.remove('drag');
+  if (state !== 'playing'){ startReturn(it); return; }
+  const t = hitTarget(it);
+  if (t) resolveDrop(it, t);
+  else if (inTrash(it)) trashResolve(it);                 // 통 위에서 놓으면 그대로 투하
+  else if (Math.hypot(it.vx, it.vy) > CONFIG.throwMinSpeed){
+    it.mode = 'throw'; it.noHitT = 0; SFX.throw_();
+  } else startReturn(it);
+}
+
+// ── 드롭 판정 ──
+function inRect(x, y, r, pad=10){
+  return x > r.x-pad && x < r.x+r.w+pad && y > r.y-pad && y < r.y+r.h+pad;
+}
+function hitTarget(it){
+  for (const c of CATEGORIES)
+    if (inRect(it.x, it.y, c.rect)) return { type:'bin', cat:c };
+  return null;
+}
+function inTrash(it){ return inRect(it.x, it.y, LAYOUT.trash, 0); }
+function resolveDrop(it, t){
+  if (!it.trash && it.cat === t.cat.id) successBin(it, t.cat);
+  else if (it.trash) failDrop(it, t.cat.el, `TRASH!`);
+  else {
+    const real = CATEGORIES.find(c=>c.id===it.cat);
+    failDrop(it, t.cat.el, `${real.short}!`);
+  }
+}
+function addScore(n){
+  score += n;
+  scoreEl.textContent = score;
+  scoreEl.classList.remove('punch'); void scoreEl.offsetWidth;
+  scoreEl.classList.add('punch');
+}
+function bumpCombo(){
+  combo = Math.min(CONFIG.comboMax, combo+1);
+  comboEl.textContent = combo > 1 ? `COMBO x${combo}` : '';
+}
+function resetCombo(){ combo = 1; comboEl.textContent = ''; }
+
+function successBin(it, cat){
+  const r = cat.rect, cx = r.x+r.w/2;
+  it.el.classList.add('storing');
+  addStoredFruit(cat, it.fruitSrc);
+  addScore(100*combo);
+  floater(cx, r.y-36, `+${100*combo}`, cat.d);
+  bumpCombo();
+  cat.el.classList.remove('pop'); void cat.el.offsetWidth; cat.el.classList.add('pop');
+  burst(cx, r.y+40, [cat.c, '#ffffff', cat.d], 18, { up:260, spMin:80, spMax:330 });
+  SFX.correct();
+  startResolve(it, cx, r.y+90);
+}
+// 우측 끝 자동 낙하 / 통에 직접 투하 — 버릴 단어면 정답, 박스 단어면 MISS
+function trashResolve(it){
+  const T = LAYOUT.trash;
+  if (it.trash){
+    addScore(150*combo);
+    floater(T.cx, T.y-36, `+${150*combo}  (${it.word})`, '#3f8f2f', 25);
+    bumpCombo();
+    burst(T.cx, T.y+24, ['#8b93a8','#c8cdd8','#3f8f2f'], 12, { up:200, spMin:60, spMax:220 });
+    SFX.trash();
+  } else {
+    floater(T.cx, T.y-36, `MISS!  (${it.word})`, '#d61f1f', 26);
+    burst(T.cx, T.y+24, ['#ff5252','#ff8a65'], 12, { up:160, spMin:60, spMax:240 });
+    scene.classList.remove('shake'); void scene.offsetWidth; scene.classList.add('shake');
+    SFX.miss();
+    loseLife();
+  }
+  if (drag === it){ drag = null; it.el.classList.remove('drag'); }
+  startResolve(it, T.cx, T.y+90);
+}
+function failDrop(it, flashEl, msg){
+  flashEl.classList.remove('wrong'); void flashEl.offsetWidth; flashEl.classList.add('wrong');
+  scene.classList.remove('shake'); void scene.offsetWidth; scene.classList.add('shake');
+  burst(it.x, it.y, ['#ff5252','#ff8a65'], 12, { up:140, spMin:60, spMax:260 });
+  floater(it.x+40, it.y-60, msg, '#d61f1f', 26);
+  SFX.wrong();
+  if (drag === it){ drag = null; it.el.classList.remove('drag'); }
+  if (lives <= 1) removeItem(it);
+  else startResolve(it, it.x, it.y+34);
+  loseLife();
+}
+function loseLife(){
+  lives--; resetCombo(); updateHearts();
+  if (lives <= 0) gameOver();
+  else showLifeCue(CONFIG.lives - lives);
+}
+
+function showLifeCue(lossIndex){
+  const src = LIFE_CUES[lossIndex - 1];
+  if (!src) return;
+  if (lifeCueTimer) clearTimeout(lifeCueTimer);
+  lifeCueImg.src = src;
+  lifeCueEl.classList.remove('on');
+  void lifeCueEl.offsetWidth;
+  lifeCueEl.classList.add('on');
+  state = 'lifeCue';
+  lifeCueTimer = setTimeout(()=>{
+    lifeCueEl.classList.remove('on');
+    lifeCueTimer = null;
+    if (state === 'lifeCue') state = 'playing';
+  }, 1000);
+}
+
+// ── 아이템 트윈 ──
+function startResolve(it, tx, ty){
+  it.mode = 'resolve';
+  it.tw = { fx:it.x, fy:it.y, tx, ty, t:0, dur:.24 };
+}
+function startReturn(it){
+  it.mode = 'return';
+  const B = LAYOUT.belt;
+  it.tw = { fx:it.x, fy:it.y, tx:clamp(it.x, 40, B.xEnd-50), ty:beltY, t:0, dur:.32 };
+}
+function removeItem(it){
+  it.el.remove();
+  const i = items.indexOf(it); if (i >= 0) items.splice(i, 1);
+}
+
+// ── HUD ──
+function updateHearts(){
+  [...heartsEl.children].forEach((h, i)=> h.classList.toggle('off', i >= lives));
+}
+function buildHearts(){
+  heartsEl.innerHTML = '';
+  for (let i=0; i<CONFIG.lives; i++){
+    const h = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    h.setAttribute('class', 'heart');
+    h.setAttribute('viewBox', '0 0 32 29');
+    h.setAttribute('aria-hidden', 'true');
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', 'M16 27C9.1 20.8 3 16.5 3 9.5C3 5.7 5.9 3 9.5 3C12 3 14.3 4.3 16 6.5C17.7 4.3 20 3 22.5 3C26.1 3 29 5.7 29 9.5C29 16.5 22.9 20.8 16 27Z');
+    h.appendChild(p);
+    heartsEl.appendChild(h);
+  }
+}
+
+// ── 메인 루프 ──
+let last = performance.now();
+function frame(now){
+  const dt = clamp((now-last)/1000, 0, 0.033); last = now;
+  if (state === 'playing') update(dt);
+  drawParticles(dt);
+  requestAnimationFrame(frame);
+}
+function update(dt){
+  tPlay += dt;
+  const sp = beltSpeed();
+
+  // 라운드 타이머
+  timeLeft = Math.max(0, timeLeft - dt);
+  const sec = Math.ceil(timeLeft);
+  timerEl.textContent = sec;
+  timerEl.classList.toggle('low', timeLeft <= 10);
+  if (timeLeft <= 10 && sec !== lastTickSec){ lastTickSec = sec; if (timeLeft > 0) SFX.tick(); }
+  if (timeLeft <= 0){ gameOver('time'); return; }
+
+  // 벨트 구동 연출 (좌→우)
+  glideOffset += sp*dt;
+  beltGlideEl.style.backgroundPosition = `${glideOffset}px 0`;
+
+  // 생성
+  spawnTimer -= dt;
+  if (spawnTimer <= 0){ spawnItem(); spawnTimer = spawnGap(); }
+
+  // 아이템 갱신
+  for (const it of [...items]){
+    it.spawnT = Math.min(1, it.spawnT + dt*4);
+    it.squash = Math.max(0, it.squash - dt*5);
+    it.bob += dt*3;
+    it.py = it.y;
+
+    if (it.mode === 'belt'){
+      it.x += sp*dt;
+      it.y = beltY + Math.sin(it.bob)*2.5;
+      it.rot = Math.sin(it.bob*0.8)*2;
+      if (it.x > LAYOUT.belt.xEnd){           // 우측 끝 도달 → TRASH로 낙하
+        it.mode = 'chute'; it.vx = sp; it.vy = 0;
+      }
+
+    } else if (it.mode === 'chute'){
+      it.vy += CONFIG.gravity*dt;
+      it.x += it.vx*dt; it.y += it.vy*dt;
+      it.rot += dt*140;
+      if (it.y >= LAYOUT.trash.catchY){ trashResolve(it); continue; }
+
+    } else if (it.mode === 'drag'){
+      const tx = pointer.x + it.grabDX, ty = pointer.y + it.grabDY;
+      const k = Math.min(1, dt*16), sdt = Math.max(dt, 0.001);
+      const nx = it.x + (tx-it.x)*k, ny = it.y + (ty-it.y)*k;
+      it.vx = it.vx*0.7 + ((nx-it.x)/sdt)*0.3;
+      it.vy = it.vy*0.7 + ((ny-it.y)/sdt)*0.3;
+      it.x = nx; it.y = ny;
+      it.rot = clamp(it.vx*0.018, -16, 16);
+
+    } else if (it.mode === 'throw'){
+      it.noHitT += dt;
+      it.vy += CONFIG.gravity*dt;
+      it.x += it.vx*dt; it.y += it.vy*dt;
+      it.rot += it.vx*dt*0.12;
+      if (it.noHitT > 0.06){
+        const t = hitTarget(it);
+        if (t){ resolveDrop(it, t); continue; }
+        if (inTrash(it)){ trashResolve(it); continue; }   // 통에 직접 던져넣기 허용
+      }
+      // 위에서 떨어지며 벨트 라인을 통과하면 벨트 위로 착지
+      if (it.vy > 0 && it.py <= beltY && it.y >= beltY && it.x > 10 && it.x < LAYOUT.belt.xEnd-20){
+        it.y = beltY; it.mode = 'belt'; it.squash = 1;
+        dust(it.x, beltY+60); SFX.drop();
+      } else if (it.x < -90 || it.x > 1380 || it.y > 800){
+        removeItem(it);
+        floater(clamp(it.x, 80, 1200), 660, 'DROPPED!', '#d61f1f', 26);
+        SFX.miss(); loseLife();
+      }
+
+    } else if (it.mode === 'return' || it.mode === 'resolve'){
+      const tw = it.tw; tw.t += dt/tw.dur;
+      const e = 1 - Math.pow(1 - Math.min(1, tw.t), 2);
+      it.x = tw.fx + (tw.tx-tw.fx)*e;
+      it.y = tw.fy + (tw.ty-tw.fy)*e;
+      if (it.mode === 'resolve'){ it.fade = 1 - e; it.rot *= 0.9; }
+      if (tw.t >= 1){
+        if (it.mode === 'resolve'){ removeItem(it); continue; }
+        it.mode = 'belt'; it.squash = 0.6;
+      }
+
+    } else if (it.mode === 'fall'){
+      it.vy += CONFIG.gravity*dt;
+      it.x += it.vx*dt; it.y += it.vy*dt;
+      it.rot -= dt*220; it.fade -= dt*2.2;
+      if (it.fade <= 0 || it.y > 820){ removeItem(it); continue; }
+    }
+    renderItem(it);
+  }
+
+  // 드롭 영역 하이라이트
+  const hovering = drag ? hitTarget(drag) : null;
+  for (const c of CATEGORIES)
+    c.el.classList.toggle('hover', !!(hovering && hovering.cat===c));
+}
+function renderItem(it){
+  const pop = it.spawnT < 1 ? 0.55 + 0.45*(1-Math.pow(1-it.spawnT,3)) : 1;
+  const sq = it.squash*0.18;
+  const scl = pop*(it.mode==='resolve' ? (0.3 + 0.7*it.fade) : 1);
+  it.el.style.opacity = it.fade;
+  it.el.style.transform =
+    `translate(${it.x}px,${it.y}px) translate(-50%,-50%) rotate(${it.rot}deg) scale(${scl*(1+sq)},${scl*(1-sq)})`;
+}
+
+// ── 게임 흐름 ──
+function showMenu(){
+  state = 'menu';
+  overlayEl.classList.remove('game-over-layout');
+  overlayEl.classList.remove('hidden');
+  overlayEl.innerHTML = `
+    <div class="card start-card">
+      <h1>COUPANG</h1>
+      <p>Fruit with word tags rides the conveyor belt!<br>
+        <b>Drag</b> each word into its box — <b>Looking</b> · <b>Gathering</b> · <b>Mixing</b>.</p>
+      <p style="color:#3f8f2f">Some words fit <b>no box</b> — <b>don't touch them!</b><br>
+        Let them ride into the <b>TRASH</b> at the end.</p>
+      <p class="small">Box words that fall in the trash cost a life.
+        You have <b>${CONFIG.duration} seconds</b> and ${CONFIG.lives} lives. You can throw too!</p>
+      <button class="btn" id="startBtn">START</button>
+    </div>`;
+  $('startBtn').addEventListener('click', startGame);
+}
+function startGame(){
+  unlockAudio();
+  if (lifeCueTimer){ clearTimeout(lifeCueTimer); lifeCueTimer = null; }
+  lifeCueEl.classList.remove('on');
+  overlayEl.classList.remove('game-over-layout');
+  for (const it of [...items]) removeItem(it);
+  clearStoredFruits();
+  drag = null;
+  score = 0; combo = 1; lives = CONFIG.lives; tPlay = 0; spawnTimer = 0.6;
+  timeLeft = CONFIG.duration; lastTickSec = -1;
+  timerEl.textContent = CONFIG.duration; timerEl.classList.remove('low');
+  scoreEl.textContent = '0'; comboEl.textContent = '';
+  buildHearts(); updateHearts();
+  overlayEl.classList.add('hidden');
+  state = 'playing';
+}
+function gameOver(reason){
+  state = 'over';
+  if (lifeCueTimer){ clearTimeout(lifeCueTimer); lifeCueTimer = null; }
+  lifeCueEl.classList.remove('on');
+  if (drag){ drag.el.classList.remove('drag'); drag = null; }
+  const timeUp = reason === 'time';
+  if (timeUp) SFX.timeup();
+  const best = Math.max(score, +(localStorage.getItem('coupangBest')||0));
+  localStorage.setItem('coupangBest', best);
+  setTimeout(()=>{
+    overlayEl.classList.remove('hidden');
+    overlayEl.classList.toggle('game-over-layout', !timeUp);
+    overlayEl.innerHTML = timeUp ? `
+      <div class="card result-card">
+        <h1>${timeUp ? 'TIME UP!' : 'GAME OVER'}</h1>
+        <p class="small">SCORE</p>
+        <div class="big">${score}</div>
+        <p class="small">BEST &nbsp;${best}</p>
+        <button class="btn" id="retryBtn">RETRY</button>
+      </div>` : `
+      <div class="game-over-stage">
+        <img class="game-over-hero" src="${GAME_OVER_ART}" alt="">
+        <h1 class="game-over-title"><span class="grab-letter">G</span>AME OVER</h1>
+        <div class="game-over-score-panel">
+          <p class="small">SCORE</p>
+          <div class="big">${score}</div>
+          <p class="small">BEST &nbsp;${best}</p>
+          <button class="btn" id="retryBtn">RETRY</button>
+        </div>
+      </div>`;
+    $('retryBtn').addEventListener('click', startGame);
+  }, 700);
+}
+
+addEventListener('pointerdown', unlockAudio, { once:true, capture:true });
+addEventListener('keydown', unlockAudio, { once:true });
+buildHearts(); updateHearts();
+startGame();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
