@@ -7,14 +7,14 @@ GitHub Pages로 배포하는 게임 허브입니다.
 
 ## 게임
 
-| # | 이름 | 내부 경로 |
-|---|---|---|
-| 01 | STORY GOGGLES | [`games/story-goggles/`](games/story-goggles/) |
-| 02 | MATTER OF PERSPECTIVE | [`games/perspective/`](games/perspective/) |
-| 03 | Life is a Fairy Tale | [`games/fairy-tale/`](games/fairy-tale/) |
-| 04 | Connections | [`games/connections/`](games/connections/) |
-| 05 | Coupang | [`games/coupang/`](games/coupang/) |
-| 06 | Escape Room | [`games/escape-room/`](games/escape-room/) |
+| # | 이름 | 설명 | 내부 경로 |
+|---|---|---|---|
+| 01 | STORY GOGGLES | 이야기를 읽고 스토리 맵, 투표, 장면 배열 활동을 통해 서사 구조를 탐색하는 인터랙티브 리딩 게임 | [`games/story-goggles/`](games/story-goggles/) |
+| 02 | MATTER OF PERSPECTIVE | 같은 문학 장면을 여러 인물의 시점으로 비교하며 관점에 따라 해석이 달라지는 과정을 체험하는 게임 | [`games/perspective/`](games/perspective/) |
+| 03 | Life is a Fairy Tale | 일기나 사진으로 남긴 일상의 순간을 장면별 동화 이야기로 만들어 보는 스토리 제작 도구 | [`games/fairy-tale/`](games/fairy-tale/) |
+| 04 | Connections | 16개의 단어에서 공통점을 찾아 네 개씩 네 그룹으로 묶는 어휘 분류 퍼즐 | [`games/connections/`](games/connections/) |
+| 05 | Coupang | 컨베이어 벨트로 들어오는 단어를 알맞은 상자에 빠르게 분류하는 어휘 게임 | [`games/coupang/`](games/coupang/) |
+| 06 | Escape Room | 단어와 단서를 활용해 여러 장치를 풀고 제한된 시간 안에 방을 탈출하는 어휘 퍼즐 | [`games/escape-room/`](games/escape-room/) |
 
 허브의 모든 카드는 이 저장소 내부의 상대 경로를 사용합니다. 배포된 게임은
 `https://cereels-dev.github.io/game-hub/games/<game>/`에서 제공됩니다.
@@ -123,6 +123,3 @@ GitHub Actions가 의존성을 설치하고 `dist/`를 생성한 뒤 배포 산�
 3. Perspective 프로덕션 빌드
 4. 허브와 여섯 게임을 하나의 Pages artifact로 조립
 5. GitHub Pages 배포
-
-기존 독립 저장소는 통합 사이트의 정상 배포와 링크 검증이 끝날 때까지 삭제하거나
-archive하지 않는 것을 권장합니다.
