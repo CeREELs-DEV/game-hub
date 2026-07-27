@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matter of Perspective</title>
+<link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <span class="brandmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.6 10-6.6S22 12 22 12s-3.6 6.6-10 6.6S2 12 2 12z"/><circle cx="12" cy="12" r="2.7"/></svg>Matter of Perspective</span>
+    <span class="booklabel">Book</span>
+    <div class="booktabs" id="tabs">
+      <button class="booktab on" data-b="snicker">A Snicker of Magic</button>
+      <button class="booktab" data-b="cuentista">The Last Cuentista</button>
+      <button class="booktab" data-b="james">James &amp; the Giant Peach</button>
+    </div>
+  </div>
+
+  <div class="readercol"><div class="reader" id="reader"></div></div>
+
+  <div class="scenecol">
+    <div class="body">
+      <div class="btnrow" id="beatrow"></div>
+      <div class="playerwrap" id="player">
+        <span class="ribbon" id="ribbon">Video mockup</span>
+        <div class="bigplay" id="bigplay" aria-label="Play"><span class="tri"></span></div>
+      </div>
+      <div class="transport">
+        <button class="ppbtn" id="pp" aria-label="Play/pause"><span class="ic-play"></span><span class="ic-pause"><b></b><b></b></span></button>
+        <div class="seek" id="seek"><div class="track"></div><div class="fill" id="fill"></div><div class="head" id="head"></div></div>
+        <span class="tcode" id="tcode">0:00 / 0:08</span>
+      </div>
+      <div class="povseg" id="povrow"></div>
+      <div class="pollsection" id="pollsection"></div>
+    </div>
+  </div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

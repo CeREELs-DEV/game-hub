@@ -1,0 +1,26 @@
+{
+  "name": "literary-imagination-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "server": "node --env-file-if-exists=.env server/index.js",
+    "make-samples": "node --env-file=.env scripts/make-samples.mjs",
+    "make-curated-videos": "node --env-file=.env scripts/make-curated-videos.mjs",
+    "make-cuentista-videos": "node --env-file=.env scripts/make-cuentista-videos.mjs",
+    "make-cuentista-keyframes": "node --env-file=.env scripts/make-cuentista-keyframes.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.109.1",
+    "@google/genai": "^2.10.0",
+    "express": "^5.2.1"
+  }
+}
